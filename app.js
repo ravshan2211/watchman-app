@@ -258,7 +258,8 @@ function handleMessage(msg) {
         state.alerts.unshift({ type: msg.type, reason: msg.reason, ts: Date.now() });
         state.alerts = state.alerts.slice(0, 20);
         renderAlerts();
-        toast(msg.reason, msg.type === 'alert');
+        if (msg.type === 'alert' && document.visibilityState === 'visible') startRing(msg.reason);
+        else toast(msg.reason, msg.type === 'alert');
       }
       break;
     case 'history':
@@ -452,8 +453,82 @@ $('pushBtn').addEventListener('click', async () => {
   }
 });
 
+// ---------------- Qo'ng'iroq signali (faqat ilova ochiq bo'lganda) ----------------
+// iOS veb-push ovozini o'zgartirib bo'lmaydi, shuning uchun signal ilova ichida
+// Web Audio bilan hosil qilinadi. iOS ovozni faqat foydalanuvchi bir marta
+// ekranga tekkandan keyin ruxsat beradi - birinchi tegishda "ochib" qo'yamiz.
+const RING_MAX_MS = 60000;
+let audioCtx = null;
+let ringTimer = null;
+let ringStopTimer = null;
+
+function unlockAudio() {
+  try {
+    // Safari 17+: ovozsiz (silent) rejimda ham chalishi uchun.
+    if (navigator.audioSession) navigator.audioSession.type = 'playback';
+    if (!audioCtx) {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      audioCtx = new Ctx();
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    // iOS uchun: gesture ichida qisqa jim tovush chalib kontekstni faollashtiramiz.
+    const b = audioCtx.createBuffer(1, 1, 22050);
+    const s = audioCtx.createBufferSource();
+    s.buffer = b; s.connect(audioCtx.destination); s.start(0);
+  } catch { /* ovoz yo'q - faqat oyna ko'rsatiladi */ }
+}
+['pointerdown', 'touchend', 'keydown'].forEach((ev) => document.addEventListener(ev, unlockAudio, { passive: true }));
+
+// Bitta "jiring": 440+480 Hz (klassik telefon qo'ng'irog'i), 0.4s ovoz, 0.2s pauza, 0.4s ovoz.
+function ringBurst() {
+  if (!audioCtx) return;
+  const t0 = audioCtx.currentTime + 0.02;
+  const gain = audioCtx.createGain();
+  gain.gain.value = 0;
+  gain.connect(audioCtx.destination);
+  for (const f of [440, 480]) {
+    const o = audioCtx.createOscillator();
+    o.type = 'square';
+    o.frequency.value = f;
+    o.connect(gain);
+    o.start(t0);
+    o.stop(t0 + 1.05);
+  }
+  for (const [on, off] of [[0, 0.4], [0.6, 1.0]]) {
+    gain.gain.setValueAtTime(0, t0 + on);
+    gain.gain.linearRampToValueAtTime(0.35, t0 + on + 0.01);
+    gain.gain.setValueAtTime(0.35, t0 + off - 0.01);
+    gain.gain.linearRampToValueAtTime(0, t0 + off);
+  }
+}
+
+function startRing(reason) {
+  $('ringText').textContent = reason;
+  $('ringBox').hidden = false;
+  if (ringTimer) return;  // allaqachon chalmoqda - faqat matn yangilanadi
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  ringBurst();
+  if (navigator.vibrate) navigator.vibrate([400, 200, 400]);
+  ringTimer = setInterval(() => {
+    ringBurst();
+    if (navigator.vibrate) navigator.vibrate([400, 200, 400]);
+  }, 2500);
+  ringStopTimer = setTimeout(() => stopRing(false), RING_MAX_MS);
+}
+
+function stopRing(hideBox = true) {
+  clearInterval(ringTimer);
+  clearTimeout(ringStopTimer);
+  ringTimer = null;
+  if (hideBox) $('ringBox').hidden = true;
+}
+$('ringStop').addEventListener('click', () => stopRing());
+$('ringTest').addEventListener('click', () => startRing('Sinov: signal shunday chaladi'));
+
 // iOS fonda WebSocket'ni uzadi - ilovaga qaytganda darhol qayta ulanamiz.
 document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') stopRing(false);
   if (document.visibilityState === 'visible' && state.creds) {
     state.reconnectDelay = 2000;
     if (!state.ws) connect();

@@ -117,6 +117,11 @@
       <button id="pushBtn" class="btn primary wide" hidden>Bildirishnomalarni yoqish</button>
     </section>
     <section class="card">
+      <div class="label">Signal ovozi</div>
+      <p class="muted">Ilova ochiq turganda ogohlantirish kelsa, telefon qo'ng'irog'idek jiringlaydi (1 daqiqagacha yoki "To'xtatish" bosilguncha).</p>
+      <button id="ringTest" class="btn wide">Signalni sinash</button>
+    </section>
+    <section class="card">
       <div class="label">Motor blok</div>
       <p class="muted">Yoqilganda dvigatel ishga tushmaydi.</p>
       <div class="row">
@@ -147,6 +152,16 @@
       <button id="confirmNo" class="btn ghost">Bekor qilish</button>
       <button id="confirmYes" class="btn primary">Ha</button>
     </div>
+  </div>
+</div>
+
+<!-- Ogohlantirish signali (ilova ochiq bo'lganda) -->
+<div id="ringBox" class="ring" hidden>
+  <div class="ring-card" role="alertdialog" aria-modal="true" aria-labelledby="ringTitle" aria-describedby="ringText">
+    <svg class="ring-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0-6 6v4l-2 3h16l-2-3V9a6 6 0 0 0-6-6z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>
+    <h2 id="ringTitle">Ogohlantirish!</h2>
+    <p id="ringText"></p>
+    <button id="ringStop" class="btn ring-stop">To'xtatish</button>
   </div>
 </div>
 

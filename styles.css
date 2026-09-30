@@ -237,6 +237,23 @@ button { font: inherit; }
 .modal-card { background: var(--card); border-radius: 16px; padding: 18px; width: 100%; max-width: 360px; }
 .modal-card p { margin: 0; font-size: 17px; }
 
+.ring {
+  position: fixed; inset: 0;
+  z-index: 40;
+  display: flex; align-items: center; justify-content: center;
+  padding: calc(20px + var(--safe-t)) 20px calc(20px + var(--safe-b));
+  background: rgba(120, 10, 10, 0.92);
+  animation: ring-pulse 1.2s ease-in-out infinite;
+}
+.ring-card { width: 100%; max-width: 380px; text-align: center; color: #fff; }
+.ring-card h2 { margin: 12px 0 8px; font-size: 30px; }
+.ring-card p { margin: 0 0 32px; font-size: 20px; overflow-wrap: anywhere; }
+.ring-ico { width: 72px; height: 72px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; animation: ring-shake 0.5s ease-in-out infinite; }
+.btn.ring-stop { width: 100%; min-height: 64px; font-size: 20px; background: #fff; color: #b71c1c; border-radius: 16px; }
+@keyframes ring-pulse { 50% { background: rgba(198, 40, 40, 0.95); } }
+@keyframes ring-shake { 25% { transform: rotate(-12deg); } 75% { transform: rotate(12deg); } }
+
 @media (prefers-reduced-motion: reduce) {
   .btn:active { transform: none; }
+  .ring, .ring-ico { animation: none; }
 }
