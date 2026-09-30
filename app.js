@@ -26,6 +26,8 @@ const state = {
   status: {},
   statusAt: 0,
   alerts: [],
+  location: null,
+  locPendingTimer: null,
   manualClose: false,
 };
 
@@ -73,6 +75,7 @@ function setConn(kind, text) {
   p.className = 'pill ' + kind;
   p.textContent = text;
   document.querySelectorAll('[data-cmd]').forEach((b) => { b.disabled = !(state.authed && state.deviceOnline); });
+  $('locRefresh').disabled = !(state.authed && state.deviceOnline) || !!state.locPendingTimer;
 }
 
 function updateConnPill() {
@@ -145,6 +148,63 @@ function renderAlerts() {
     ul.appendChild(li);
   }
 }
+
+// ---------------- Joylashuv ----------------
+const LOC_ERRORS = {
+  not_found: "Atrofdagi Wi-Fi tarmoqlar bazada topilmadi - bu joyda aniqlab bo'lmadi.",
+  few_networks: "Mashina atrofida Wi-Fi tarmoq topilmadi.",
+  too_soon: "Biroz kuting va qayta urinib ko'ring.",
+  timeout: "Mashinadan javob kelmadi.",
+};
+
+function renderLocation() {
+  const loc = state.location;
+  if (!loc) {
+    $('locText').textContent = 'Hali aniqlanmagan';
+    $('locMapWrap').hidden = true;
+    $('locLinks').hidden = true;
+    return;
+  }
+  const acc = loc.accuracy ? `±${loc.accuracy} m aniqlik` : '';
+  $('locText').textContent = [fmtTime(loc.ts) + ' da aniqlangan', acc].filter(Boolean).join(' · ');
+  const lat = loc.lat.toFixed(6);
+  const lon = loc.lon.toFixed(6);
+  // Ko'rinadigan maydon aniqlikka qarab (kamida ~300 m).
+  const radiusM = Math.max((loc.accuracy || 0) * 3, 300);
+  const dLat = radiusM / 111000;
+  const dLon = dLat / Math.max(Math.cos((loc.lat * Math.PI) / 180), 0.2);
+  const bbox = [loc.lon - dLon, loc.lat - dLat, loc.lon + dLon, loc.lat + dLat].map((v) => v.toFixed(5)).join(',');
+  const src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lon}`;
+  if ($('locMap').getAttribute('src') !== src) $('locMap').setAttribute('src', src);
+  $('locGoogle').href = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
+  $('locYandex').href = `https://yandex.uz/maps/?pt=${lon},${lat}&z=17&l=map`;
+  $('locMapWrap').hidden = false;
+  $('locLinks').hidden = false;
+}
+
+function setLocPending(on) {
+  clearTimeout(state.locPendingTimer);
+  state.locPendingTimer = on ? setTimeout(() => {
+    state.locPendingTimer = null;
+    showLocError('timeout');
+  }, 30000) : null;
+  if (on) {
+    $('locError').textContent = "Aniqlanmoqda… (10–20 soniya)";
+    $('locError').hidden = false;
+  }
+  updateConnPill();
+}
+
+function showLocError(reason) {
+  setLocPending(false);
+  $('locError').textContent = LOC_ERRORS[reason] || "Joyni aniqlab bo'lmadi.";
+  $('locError').hidden = false;
+}
+
+$('locRefresh').addEventListener('click', () => {
+  if (send({ type: 'cmd', cmd: 'RequestLocation' })) setLocPending(true);
+  else toast("Server bilan aloqa yo'q", true);
+});
 
 function renderHistory(events) {
   const ul = $('historyList');
@@ -265,6 +325,19 @@ function handleMessage(msg) {
     case 'history':
       renderHistory(msg.events);
       break;
+    case 'location':
+      if (Number.isFinite(msg.lat) && Number.isFinite(msg.lon)) {
+        state.location = { lat: msg.lat, lon: msg.lon, accuracy: msg.accuracy, ts: msg.ts || Date.now() };
+        if (state.locPendingTimer) setLocPending(false);
+        $('locError').hidden = true;
+        renderLocation();
+      }
+      break;
+    case 'location_error':
+      // Faqat o'zimiz so'raganda ko'rsatamiz - avtomatik (qulflanganda va h.k.)
+      // skanerlash xatosi eski ma'lum joyni ko'rsatib turishga xalaqit bermasin.
+      if (state.locPendingTimer) showLocError(msg.reason);
+      break;
     case 'master_password_result':
       if (!msg.ok) toast("Mashina ID ni tasdiqlamadi - buyruqlar bajarilmaydi. ID ni tekshiring.", true);
       break;
@@ -292,6 +365,10 @@ function logoutLocal(errorText) {
   state.creds = null;
   state.status = {};
   state.alerts = [];
+  state.location = null;
+  setLocPending(false);
+  $('locError').hidden = true;
+  renderLocation();
   clearCreds();
   showView('login');
   const err = $('loginError');

@@ -93,6 +93,22 @@
     </section>
 
     <section class="card">
+      <div class="row-between">
+        <div class="label">Mashina joylashuvi</div>
+        <button id="locRefresh" class="btn ghost">Yangilash</button>
+      </div>
+      <p id="locText" class="muted">Hali aniqlanmagan</p>
+      <p id="locError" class="muted small" hidden></p>
+      <div id="locMapWrap" class="map" hidden>
+        <iframe id="locMap" title="Mashina joylashuvi xaritada" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      </div>
+      <div id="locLinks" class="row" hidden>
+        <a id="locGoogle" class="btn" target="_blank" rel="noopener">Google xarita</a>
+        <a id="locYandex" class="btn" target="_blank" rel="noopener">Yandex xarita</a>
+      </div>
+    </section>
+
+    <section class="card">
       <div class="label">Oxirgi ogohlantirishlar</div>
       <ul id="alertList" class="list"><li class="muted">Hozircha yo'q</li></ul>
     </section>
