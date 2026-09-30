@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WATCHMAN</title>
+<meta name="description" content="Avtomobilni telefondan boshqarish: qulflash, avtozapusk, qo'riqlash">
+<meta name="theme-color" content="#1c4585">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WATCHMAN">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ KIRISH ============ -->
+<section id="loginView" class="view" hidden>
+  <div class="brand">
+    <div class="logo"><span>WATCH</span><span class="orange">MAN</span></div>
+    <p class="brand-sub">Mashinangiz telefoningizda</p>
+  </div>
+  <form id="loginForm" class="card form" autocomplete="on" novalidate>
+    <label for="loginInput">Login</label>
+    <input id="loginInput" name="username" autocomplete="username" autocapitalize="characters" spellcheck="false" required>
+    <label for="passwordInput">Parol</label>
+    <input id="passwordInput" name="password" type="password" autocomplete="current-password" required>
+    <label for="idInput">ID</label>
+    <input id="idInput" name="id" type="password" autocomplete="off" required>
+    <p id="loginError" class="error" role="alert" hidden></p>
+    <button id="loginBtn" type="submit" class="btn primary wide">Kirish</button>
+  </form>
+  <p class="hint">Login, parol va ID qurilma o'rnatilganda beriladi.</p>
+</section>
+
+<!-- ============ ASOSIY ============ -->
+<section id="mainView" class="view" hidden>
+  <header class="topbar">
+    <div class="logo small"><span>WATCH</span><span class="orange">MAN</span></div>
+    <div id="connPill" class="pill" aria-live="polite">Ulanmoqda…</div>
+  </header>
+
+  <div id="installHint" class="banner" hidden>
+    <strong>Ilovani o'rnating:</strong> Safari pastidagi <span class="share-ico" aria-hidden="true">⬆︎</span> "Ulashish" → <b>"Ekranga qo'shish"</b>. Shundan keyin ogohlantirishlar ilova yopiq bo'lsa ham keladi.
+  </div>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <!-- Boshqaruv -->
+  <main id="tab-control" class="tab">
+    <section class="card status-card">
+      <div class="status-head">
+        <div>
+          <div class="label">Mashina</div>
+          <div id="guardText" class="big">—</div>
+        </div>
+        <div id="engineBadge" class="badge off">Dvigatel o'chiq</div>
+      </div>
+      <dl class="grid">
+        <div><dt>Eshiklar</dt><dd id="doorsVal">—</dd></div>
+        <div><dt>Bagaj</dt><dd id="trunkVal">—</dd></div>
+        <div><dt>Uzatma</dt><dd id="gearVal">—</dd></div>
+        <div><dt>Akkumulyator</dt><dd id="batVal">—</dd></div>
+        <div><dt>Harorat</dt><dd id="tempVal">—</dd></div>
+        <div><dt>Chiroqlar</dt><dd id="lampVal">—</dd></div>
+      </dl>
+      <p id="autostartLine" class="autostart" hidden></p>
+      <p id="updatedLine" class="muted small"></p>
+    </section>
+
+    <section class="actions">
+      <button class="btn action lock" data-cmd="Lock">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Qulflash
+      </button>
+      <button class="btn action unlock" data-cmd="UnLock">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>Ochish
+      </button>
+      <button class="btn action start" data-cmd="EngineStart" data-confirm="Dvigatelni masofadan yoqish (yoki yoniq bo'lsa o'chirish)?">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v9"/><path d="M6.3 7.3a8 8 0 1 0 11.4 0"/></svg>Zavod
+      </button>
+      <button class="btn action" data-cmd="Bagaj" data-confirm="Bagajni ochish?">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15h18l-2-6H5z"/><path d="M5 15v3h14v-3"/><path d="M12 3v5M9.5 5.5 12 3l2.5 2.5"/></svg>Bagaj
+      </button>
+    </section>
+
+    <section class="actions small-actions">
+      <button class="btn action" data-cmd="Aux 1">AUX 1</button>
+      <button class="btn action" data-cmd="Aux 2">AUX 2</button>
+      <button class="btn action" data-cmd="Aux 3">AUX 3</button>
+    </section>
+
+    <section class="card">
+      <div class="label">Oxirgi ogohlantirishlar</div>
+      <ul id="alertList" class="list"><li class="muted">Hozircha yo'q</li></ul>
+    </section>
+  </main>
+
+  <!-- Tarix -->
+  <main id="tab-history" class="tab" hidden>
+    <section class="card">
+      <div class="row-between">
+        <div class="label">Voqealar tarixi</div>
+        <button id="historyRefresh" class="btn ghost">Yangilash</button>
+      </div>
+      <ul id="historyList" class="list"><li class="muted">Yuklanmoqda…</li></ul>
+    </section>
+  </main>
+
+  <!-- Sozlamalar -->
+  <main id="tab-settings" class="tab" hidden>
+    <section class="card">
+      <div class="label">Bildirishnomalar</div>
+      <p id="pushStatus" class="muted">—</p>
+      <button id="pushBtn" class="btn primary wide" hidden>Bildirishnomalarni yoqish</button>
+    </section>
+    <section class="card">
+      <div class="label">Motor blok</div>
+      <p class="muted">Yoqilganda dvigatel ishga tushmaydi.</p>
+      <div class="row">
+        <button class="btn danger" data-cmd="MatorBlockOn" data-confirm="Dvigatelni bloklash?">Bloklash</button>
+        <button class="btn" data-cmd="MatorBlockOff" data-confirm="Blokdan chiqarish?">Blokdan chiqarish</button>
+      </div>
+    </section>
+    <section class="card">
+      <div class="label">Hisob</div>
+      <p class="muted">Login: <b id="loginShown">—</b></p>
+      <button id="logoutBtn" class="btn ghost wide">Chiqish</button>
+    </section>
+    <p class="muted small center"><a href="https://ravshan2211.github.io/watchman-privacy-new/" target="_blank" rel="noopener">Maxfiylik siyosati</a></p>
+  </main>
+
+  <nav class="tabbar" role="tablist">
+    <button class="tabbtn active" data-tab="control" role="tab" aria-selected="true">Boshqaruv</button>
+    <button class="tabbtn" data-tab="history" role="tab" aria-selected="false">Tarix</button>
+    <button class="tabbtn" data-tab="settings" role="tab" aria-selected="false">Sozlamalar</button>
+  </nav>
+</section>
+
+<!-- Tasdiqlash oynasi (confirm() iPhone veb-ilovasida noqulay) -->
+<div id="confirmBox" class="modal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmText">
+    <p id="confirmText"></p>
+    <div class="row">
+      <button id="confirmNo" class="btn ghost">Bekor qilish</button>
+      <button id="confirmYes" class="btn primary">Ha</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
