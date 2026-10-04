@@ -1,7 +1,7 @@
 // WATCHMAN veb-ilovasi service worker'i:
 // 1) ilova qobig'ini keshlaydi - internet sekin bo'lsa ham tez ochiladi;
 // 2) serverdan kelgan push-bildirishnomalarni ko'rsatadi (ilova yopiq bo'lsa ham).
-const CACHE = 'watchman-v3';
+const CACHE = 'watchman-v5';
 const SHELL = [
   './',
   './index.html',
