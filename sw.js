@@ -2,12 +2,12 @@
 // 1) ilova qobig'ini keshlaydi - internet sekin bo'lsa ham tez ochiladi;
 // 2) serverdan kelgan push-bildirishnomalarni ko'rsatadi (ilova yopiq bo'lsa ham).
 // index.html dagi ?v= bilan bir xil raqam - har yangilanishda ikkalasini oshiring.
-const CACHE = 'watchman-v7';
+const CACHE = 'watchman-v8';
 const SHELL = [
   './',
   './index.html',
-  './styles.css?v=7',
-  './app.js?v=7',
+  './styles.css?v=8',
+  './app.js?v=8',
   './manifest.webmanifest',
   './icons/apple-touch-icon.png',
   './icons/icon-192.png',
@@ -26,6 +26,10 @@ const SHELL = [
   './img/ic_lock.svg',
   './img/ic_lock_ochiq.svg',
   './img/ic_menu_local.svg',
+  './img/ic_bot_signal.svg',
+  './img/ic_bot_fara.svg',
+  './img/ic_bot_telefon.svg',
+  './img/ic_bot_bakavoy.svg',
 ];
 
 self.addEventListener('install', (event) => {

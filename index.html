@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="styles.css?v=7">
+<link rel="stylesheet" href="styles.css?v=8">
 </head>
 <body>
 
@@ -82,9 +82,9 @@
     </div>
 
     <div class="aux-row">
-      <button class="round" data-cmd="Aux 1" aria-label="AUX 1"><span class="mask ico-aux1"></span></button>
-      <button class="round" data-cmd="Aux 2" aria-label="AUX 2"><span class="mask ico-aux2"></span></button>
-      <button class="round" data-cmd="Aux 3" aria-label="AUX 3"><span class="mask ico-aux3"></span></button>
+      <button class="round" data-cmd="Aux 1" aria-label="AUX 1"><span class="mask ico-aux1" data-aux-slot="1"></span></button>
+      <button class="round" data-cmd="Aux 2" aria-label="AUX 2"><span class="mask ico-aux2" data-aux-slot="2"></span></button>
+      <button class="round" data-cmd="Aux 3" aria-label="AUX 3"><span class="mask ico-aux3" data-aux-slot="3"></span></button>
       <button class="round" data-cmd="Bagaj" data-confirm="Bagajni ochish?" aria-label="Bagaj"><span class="mask ico-bagaj"></span></button>
       <button class="round" data-cmd="MatorBlockOff" data-confirm="Dvigatelni blokdan chiqarish?" aria-label="Motor blokdan chiqarish"><span class="mask ico-block-off"></span></button>
       <button class="round" data-cmd="MatorBlockOn" data-confirm="Dvigatelni bloklash?" aria-label="Motorni bloklash"><span class="mask ico-block-on"></span></button>
@@ -95,14 +95,17 @@
   <section id="page-menu" class="page" hidden>
     <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">Sozlamalar</div></header>
     <div class="page-body">
+      <!-- Android'dagidek: AUX tugmasini bosib ikonkasini tanlash (buyruq o'zgarmaydi). -->
       <div class="aux-card">
-        <button class="round small" data-cmd="Aux 1" aria-label="AUX 1"><span class="mask ico-aux1"></span></button>
-        <button class="round small" data-cmd="Aux 2" aria-label="AUX 2"><span class="mask ico-aux2"></span></button>
-        <button class="round small" data-cmd="Aux 3" aria-label="AUX 3"><span class="mask ico-aux3"></span></button>
+        <button class="round small" data-aux-pick="1" aria-label="AUX 1 ikonkasini tanlash"><span class="mask ico-aux1" data-aux-slot="1"></span></button>
+        <button class="round small" data-aux-pick="2" aria-label="AUX 2 ikonkasini tanlash"><span class="mask ico-aux2" data-aux-slot="2"></span></button>
+        <button class="round small" data-aux-pick="3" aria-label="AUX 3 ikonkasini tanlash"><span class="mask ico-aux3" data-aux-slot="3"></span></button>
       </div>
       <label class="switch-row"><span>Tungi rejim</span><input id="darkToggle" type="checkbox" role="switch"><i></i></label>
       <div class="menu-list">
+        <button class="menu-item" data-page="timer">Taymer <span>›</span></button>
         <button class="menu-item" data-page="history">Komandalar <span>›</span></button>
+        <button class="menu-item" data-page="general">Sozlamalar <span>›</span></button>
         <button class="menu-item" data-page="location">Joylashuv <span>›</span></button>
         <button class="menu-item" data-page="push">Bildirishnomalar <span>›</span></button>
         <button id="logoutBtn" class="menu-item danger">Chiqish</button>
@@ -143,6 +146,57 @@
     </div>
   </section>
 
+  <!-- Taymer (Android TimerSettingsFragment) -->
+  <section id="page-timer" class="page" hidden>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">Taymer</div></header>
+    <form id="timerForm" class="page-body form-page" novalidate>
+      <label for="tAux1">AUX 1 vaqti (soniya, 0.1 - 30)</label>
+      <input id="tAux1" inputmode="decimal" autocomplete="off">
+      <label for="tAux2">AUX 2 vaqti (soniya, 0.1 - 30)</label>
+      <input id="tAux2" inputmode="decimal" autocomplete="off">
+      <label for="tAux3">AUX 3 vaqti (soniya, 0.1 - 30)</label>
+      <input id="tAux3" inputmode="decimal" autocomplete="off">
+      <label for="tLock">Yopish (Lock) vaqti (soniya, 0.1 - 30)</label>
+      <input id="tLock" inputmode="decimal" autocomplete="off">
+      <label for="tAuto">Avtozapusk oralig'i (daqiqa, 5 - 30, 0 = o'chirilgan)</label>
+      <input id="tAuto" inputmode="numeric" autocomplete="off">
+      <p id="timerError" class="form-error" role="alert" hidden></p>
+      <button class="wide-btn" type="submit">Saqlash</button>
+    </form>
+  </section>
+
+  <!-- Sozlamalar (Android GeneralSettingsFragment): Qurilmalar, WiFi, ID -->
+  <section id="page-general" class="page" hidden>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">Sozlamalar</div></header>
+    <div class="page-body form-page">
+      <h2 class="sec-title">Qurilmalar</h2>
+      <p class="sec-hint">Shu hisobga ulangan telefonlar. Ortiqchasini ID bilan o'chirish mumkin.</p>
+      <button id="devicesBtn" class="wide-btn">Qurilmalar</button>
+
+      <h2 class="sec-title">WiFi</h2>
+      <p id="wifiNow" class="info-box">Hozir ulangan: noma'lum (qurilma hali ma'lumot yubormagan)</p>
+      <form id="wifiForm" novalidate>
+        <label for="wifiSsid">Tarmoq nomi (SSID) - o'zgartirmoqchi bo'lmasangiz bo'sh qoldiring</label>
+        <input id="wifiSsid" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <label for="wifiPass">WiFi paroli</label>
+        <input id="wifiPass" type="password" autocomplete="off">
+        <button class="wide-btn" type="submit">Saqlash</button>
+      </form>
+
+      <h2 class="sec-title">ID ni o'zgartirish</h2>
+      <form id="idForm" novalidate>
+        <label for="idOld">Eski ID</label>
+        <input id="idOld" type="password" autocomplete="off">
+        <label for="idNew">Yangi ID</label>
+        <input id="idNew" type="password" autocomplete="new-password">
+        <label for="idNew2">Yangi ID ni tasdiqlang</label>
+        <input id="idNew2" type="password" autocomplete="new-password">
+        <p id="idError" class="form-error" role="alert" hidden></p>
+        <button class="wide-btn" type="submit">ID ni o'zgartirish</button>
+      </form>
+    </div>
+  </section>
+
   <!-- Bildirishnomalar -->
   <section id="page-push" class="page" hidden>
     <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">Bildirishnomalar</div></header>
@@ -172,6 +226,34 @@
   </div>
 </div>
 
+<!-- AUX ikonkasini tanlash (Android "Funksiyani tanlang") -->
+<div id="auxPicker" class="modal" hidden>
+  <div class="modal-card sheet" role="dialog" aria-modal="true" aria-labelledby="auxPickerTitle">
+    <h3 id="auxPickerTitle">Funksiyani tanlang</h3>
+    <div id="auxPickerList" class="pick-grid"></div>
+    <button id="auxPickerClose" class="btn ghost wide">Bekor qilish</button>
+  </div>
+</div>
+
+<!-- Qurilmalar ro'yxati va o'chirish -->
+<div id="devicesBox" class="modal" hidden>
+  <div class="modal-card sheet" role="dialog" aria-modal="true" aria-labelledby="devicesTitle">
+    <h3 id="devicesTitle">Ulangan qurilmalar</h3>
+    <ul id="devicesList" class="dev-list"><li class="muted">Yuklanmoqda…</li></ul>
+    <form id="devRemoveForm" class="dev-remove" novalidate hidden>
+      <p id="devRemoveText"></p>
+      <label for="devRemoveId">ID</label>
+      <input id="devRemoveId" type="password" autocomplete="off">
+      <p id="devRemoveError" class="form-error" role="alert" hidden></p>
+      <div class="row">
+        <button id="devRemoveCancel" type="button" class="btn ghost">Bekor qilish</button>
+        <button type="submit" class="btn danger-solid">O'chirish</button>
+      </div>
+    </form>
+    <button id="devicesClose" class="btn ghost wide">Yopish</button>
+  </div>
+</div>
+
 <!-- Ogohlantirish signali (ilova ochiq bo'lganda) -->
 <div id="ringBox" class="ring" hidden>
   <div class="ring-card" role="alertdialog" aria-modal="true" aria-labelledby="ringTitle" aria-describedby="ringText">
@@ -182,6 +264,6 @@
   </div>
 </div>
 
-<script src="app.js?v=7"></script>
+<script src="app.js?v=8"></script>
 </body>
 </html>

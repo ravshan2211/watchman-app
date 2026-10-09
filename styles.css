@@ -360,3 +360,47 @@ button { font: inherit; }
   .btn:active { transform: none; }
   .ring, .ring-ico { animation: none; }
 }
+
+/* ---------- Taymer / Sozlamalar formalari (Android GeneralSettings ko'rinishi) ---------- */
+.form-page label { display: block; font-size: 16px; margin: 14px 0 6px; }
+.form-page input {
+  display: block; width: 100%; font-size: 18px; padding: 14px 16px;
+  border: 0; border-radius: 10px; background: var(--card-bg); color: var(--text);
+}
+.form-page input:focus { outline: 3px solid #0b5fa0; outline-offset: 1px; }
+.form-page .wide-btn { margin-top: 22px; }
+.form-error { color: #b00000; font-weight: 700; margin: 10px 0 0; }
+#mainView.dark .form-error { color: #ff6b6b; }
+.sec-title { font-size: 20px; margin: 22px 0 0; }
+.sec-title:first-child { margin-top: 4px; }
+.sec-hint { margin: 6px 0 0; font-size: 15px; }
+.info-box { background: var(--card-bg); border-radius: 10px; padding: 16px 20px; margin: 10px 0 0; font-weight: 700; font-size: 17px; white-space: pre-line; }
+.ico-signal { --m: url(img/ic_bot_signal.svg); }
+.ico-fara { --m: url(img/ic_bot_fara.svg); }
+.ico-telefon { --m: url(img/ic_bot_telefon.svg); }
+.ico-bakavoy { --m: url(img/ic_bot_bakavoy.svg); }
+/* Kichik (24-32 birlikli) Android ikonkalari AUX doirasida kattaroq ko'rinmasin. */
+.round .ico-signal, .round .ico-fara, .round .ico-telefon, .round .ico-bakavoy { width: 34px; height: 34px; }
+
+/* ---------- Oynalar: ikonka tanlash, qurilmalar ---------- */
+.modal-card.sheet { max-width: 420px; max-height: 86vh; overflow-y: auto; }
+.modal-card h3 { margin: 0 0 14px; font-size: 20px; }
+.pick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 8px; }
+.pick-item {
+  border: 0; background: none; color: inherit; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 14px; font-weight: 600;
+}
+.pick-item .round { pointer-events: none; color: #09609f; background: #e0e0e0; }
+.pick-item[aria-pressed="true"] .round { box-shadow: 0 0 0 3px #ff871f; }
+.dev-list { list-style: none; margin: 0; padding: 0; }
+.dev-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 0; border-top: 1px solid var(--line); }
+.dev-list li:first-child { border-top: 0; }
+.dev-list .dev-name { font-weight: 700; }
+.dev-list .dev-sub { font-size: 13px; color: var(--muted); }
+.dev-list .on { color: var(--ok); }
+.btn.small-danger { background: rgba(198, 40, 40, 0.12); color: var(--danger); padding: 8px 12px; font-size: 14px; }
+.btn.danger-solid { background: #c62828; color: #fff; }
+.dev-remove { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.dev-remove p { margin: 0 0 8px; }
+.dev-remove label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+.dev-remove input { width: 100%; font-size: 17px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }

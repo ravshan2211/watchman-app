@@ -12,6 +12,7 @@ const FATAL_AUTH = {
   invalid_master_password: "ID noto'g'ri.",
   too_many_attempts: "Ko'p marta xato kiritildi. 1 daqiqadan keyin qayta urinib ko'ring.",
   bad_auth_message: "Login, parol va ID ni to'liq kiriting.",
+  device_removed: "Bu telefon hisobdan o'chirilgan. Hisob egasi ID ni o'zgartirgach qayta kirish mumkin.",
 };
 
 const $ = (id) => document.getElementById(id);
@@ -52,6 +53,13 @@ function deviceId() {
   } catch {
     return 'web-anon';
   }
+}
+
+function deviceName() {
+  const ua = navigator.userAgent;
+  const kind = /iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) ? 'iPad'
+    : /iPhone/.test(ua) ? 'iPhone' : /Android/.test(ua) ? 'Android' : 'Kompyuter';
+  return kind + ' (veb-ilova)';
 }
 
 // ---------------- Ko'rinish ----------------
@@ -277,6 +285,7 @@ function connect() {
       password: state.creds.password,
       masterPassword: state.creds.id,
       deviceId: deviceId(),
+      deviceName: deviceName(),
     }));
   };
 
@@ -338,6 +347,7 @@ function handleMessage(msg) {
       state.statusAt = Date.now();
       updateConnPill();
       renderStatus();
+      if (!$('page-general').hidden) renderWifiNow();
       break;
     case 'alert':
     case 'notice':
@@ -364,6 +374,15 @@ function handleMessage(msg) {
       // Faqat o'zimiz so'raganda ko'rsatamiz - avtomatik (qulflanganda va h.k.)
       // skanerlash xatosi eski ma'lum joyni ko'rsatib turishga xalaqit bermasin.
       if (state.locPendingTimer) showLocError(msg.reason);
+      break;
+    case 'devices':
+      renderDevices(msg.items);
+      break;
+    case 'device_remove_result':
+      onDeviceRemoveResult(msg);
+      break;
+    case 'master_password_result':
+      onMasterPasswordResult(msg);
       break;
     case 'push_subscribe_result':
       refreshPushUi(msg.ok ? 'Yoqilgan' : "Serverda saqlanmadi");
@@ -477,6 +496,8 @@ function openPage(name) {
   el.scrollTop = 0;
   if (name === 'history') send({ type: 'cmd', cmd: 'GetHistory' });
   if (name === 'push') refreshPushUi();
+  if (name === 'timer') fillTimerForm();
+  if (name === 'general') renderWifiNow();
 }
 function closePage() {
   const cur = pageStack.pop();
@@ -504,6 +525,226 @@ $('darkToggle').addEventListener('change', (e) => {
   try { localStorage.setItem(THEME_KEY, e.target.checked ? 'dark' : 'light'); } catch { /* e'tiborsiz */ }
 });
 try { applyTheme(localStorage.getItem(THEME_KEY) === 'dark'); } catch { applyTheme(false); }
+
+// ---------------- AUX ikonkalari (Android: Sozlamalar -> AUX -> "Funksiyani tanlang") ----------------
+// Tugma har doim o'z buyrug'ini (Aux 1/2/3) yuboradi - tanlov faqat ikonka va nomni o'zgartiradi.
+const AUX_FUNCS = [
+  { key: 'Aux 1', label: 'AUX 1', cls: 'ico-aux1' },
+  { key: 'Aux 2', label: 'AUX 2', cls: 'ico-aux2' },
+  { key: 'Aux 3', label: 'AUX 3', cls: 'ico-aux3' },
+  { key: 'Signal', label: 'Signal', cls: 'ico-signal' },
+  { key: 'Chiroqlar', label: 'Chiroqlar', cls: 'ico-fara' },
+  { key: 'Lyuk', label: 'Lyuk', cls: 'ico-telefon' },
+  { key: 'Yon oyna', label: 'Yon oyna', cls: 'ico-bakavoy' },
+];
+const AUX_KEY = 'watchman.auxIcons';
+function loadAuxChoice() {
+  const def = { 1: 'Aux 1', 2: 'Aux 2', 3: 'Aux 3' };
+  try { return Object.assign(def, JSON.parse(localStorage.getItem(AUX_KEY) || '{}')); } catch { return def; }
+}
+function applyAuxIcons() {
+  const choice = loadAuxChoice();
+  document.querySelectorAll('[data-aux-slot]').forEach((el) => {
+    const fn = AUX_FUNCS.find((x) => x.key === choice[el.dataset.auxSlot]) || AUX_FUNCS[0];
+    el.className = 'mask ' + fn.cls;
+    const btn = el.closest('[data-cmd]');
+    if (btn) btn.setAttribute('aria-label', fn.label + ' (AUX ' + el.dataset.auxSlot + ')');
+  });
+}
+let auxPickSlot = null;
+document.querySelectorAll('[data-aux-pick]').forEach((b) => b.addEventListener('click', () => {
+  auxPickSlot = b.dataset.auxPick;
+  const current = loadAuxChoice()[auxPickSlot];
+  const list = $('auxPickerList');
+  list.textContent = '';
+  for (const fn of AUX_FUNCS) {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'pick-item';
+    item.setAttribute('aria-pressed', fn.key === current ? 'true' : 'false');
+    const r = document.createElement('span'); r.className = 'round small';
+    const m = document.createElement('span'); m.className = 'mask ' + fn.cls;
+    r.appendChild(m);
+    item.append(r, document.createTextNode(fn.label));
+    item.addEventListener('click', () => {
+      const choice = loadAuxChoice();
+      choice[auxPickSlot] = fn.key;
+      try { localStorage.setItem(AUX_KEY, JSON.stringify(choice)); } catch { /* e'tiborsiz */ }
+      applyAuxIcons();
+      $('auxPicker').hidden = true;
+    });
+    list.appendChild(item);
+  }
+  $('auxPickerTitle').textContent = 'AUX ' + auxPickSlot + ': funksiyani tanlang';
+  $('auxPicker').hidden = false;
+}));
+$('auxPickerClose').addEventListener('click', () => { $('auxPicker').hidden = true; });
+applyAuxIcons();
+
+// ---------------- Taymer (Android TimerSettingsFragment, buyruq SetTimers) ----------------
+function fillTimerForm() {
+  const s = state.status;
+  const sec = (ms) => (typeof ms === 'number' ? String(Math.round(ms / 100) / 10) : '');
+  $('tAux1').value = sec(s.tAux1Ms);
+  $('tAux2').value = sec(s.tAux2Ms);
+  $('tAux3').value = sec(s.tAux3Ms);
+  $('tLock').value = sec(s.tLockMs);
+  $('tAuto').value = typeof s.tAutoStartMin === 'number' ? String(s.tAutoStartMin) : '';
+  $('timerError').hidden = true;
+}
+$('timerForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const err = (t) => { $('timerError').textContent = t; $('timerError').hidden = false; };
+  const secToMs = (id, name) => {
+    const v = parseFloat($(id).value.replace(',', '.'));
+    if (!(v >= 0.1 && v <= 30)) { err(name + ': 0.1 dan 30 soniyagacha kiriting'); return null; }
+    return Math.round(v * 1000);
+  };
+  const aux1Ms = secToMs('tAux1', 'AUX 1'); if (aux1Ms === null) return;
+  const aux2Ms = secToMs('tAux2', 'AUX 2'); if (aux2Ms === null) return;
+  const aux3Ms = secToMs('tAux3', 'AUX 3'); if (aux3Ms === null) return;
+  const lockMs = secToMs('tLock', 'Yopish'); if (lockMs === null) return;
+  const autoStartMin = parseInt($('tAuto').value, 10);
+  if (!(autoStartMin === 0 || (autoStartMin >= 5 && autoStartMin <= 30))) { err("Avtozapusk: 0 yoki 5 dan 30 daqiqagacha"); return; }
+  $('timerError').hidden = true;
+  if (send({ type: 'cmd', cmd: 'SetTimers', aux1Ms, aux2Ms, aux3Ms, lockMs, autoStartMin })) toast('Saqlandi');
+  else toast("Server bilan aloqa yo'q", true);
+});
+
+// ---------------- Sozlamalar: WiFi (buyruq SetWifi) ----------------
+function renderWifiNow() {
+  const s = state.status;
+  if (!s.wifiSsid) {
+    $('wifiNow').textContent = "Hozir ulangan: noma'lum (qurilma hali ma'lumot yubormagan)";
+    return;
+  }
+  let text = 'Hozir ulangan: ' + s.wifiSsid;
+  if (typeof s.wifiRssi === 'number') {
+    const q = s.wifiRssi >= -60 ? "a'lo" : s.wifiRssi >= -70 ? 'yaxshi' : s.wifiRssi >= -80 ? "o'rtacha" : 'zaif';
+    text += '\n(signal: ' + q + ', ' + s.wifiRssi + ' dBm)';
+  }
+  $('wifiNow').textContent = text;
+}
+$('wifiForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const ssid = $('wifiSsid').value.trim();
+  if (!ssid) { toast("Tarmoq nomi bo'sh - o'zgartirilmadi"); return; }
+  if (!(await askConfirm('ESP32 "' + ssid + '" tarmog\'iga ulanadi. Parol noto\'g\'ri bo\'lsa, eski tarmoqqa qaytadi. Davom etilsinmi?'))) return;
+  if (send({ type: 'cmd', cmd: 'SetWifi', wifiSsid: ssid, wifiPassword: $('wifiPass').value })) {
+    toast('Yuborildi - qurilma yangi tarmoqqa ulanmoqda');
+    $('wifiPass').value = '';
+  } else {
+    toast("Server bilan aloqa yo'q", true);
+  }
+});
+
+// ---------------- Sozlamalar: ID ni o'zgartirish (buyruq SetMasterPassword) ----------------
+let pendingNewId = null;
+let idTimer = null;
+$('idForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const err = (t) => { $('idError').textContent = t; $('idError').hidden = false; };
+  const oldId = $('idOld').value, newId = $('idNew').value, newId2 = $('idNew2').value;
+  if (!oldId || !newId) { err('Eski va yangi ID ni kiriting'); return; }
+  if (newId !== newId2) { err('ID lar mos kelmadi'); return; }
+  $('idError').hidden = true;
+  if (!send({ type: 'cmd', cmd: 'SetMasterPassword', oldPassword: oldId, newPassword: newId })) {
+    toast("Server bilan aloqa yo'q", true);
+    return;
+  }
+  pendingNewId = newId;
+  clearTimeout(idTimer);
+  idTimer = setTimeout(() => {
+    if (pendingNewId === null) return;
+    pendingNewId = null;
+    err('Javob kelmadi. Biroz kutib, qayta urinib ko\'ring.');
+  }, 15000);
+});
+function onMasterPasswordResult(msg) {
+  if (pendingNewId === null) return;  // bu telefon so'ramagan (yoki allaqachon javob olingan)
+  clearTimeout(idTimer);
+  if (msg.ok) {
+    // Keyingi ulanishda yangi ID bilan kiriladi - aks holda server rad etardi.
+    state.creds.id = pendingNewId;
+    saveCreds(state.creds);
+    ['idOld', 'idNew', 'idNew2'].forEach((id) => { $(id).value = ''; });
+    toast("ID o'zgartirildi");
+  } else {
+    $('idError').textContent = msg.reason === 'demo' ? "Demo hisobda ID ni o'zgartirib bo'lmaydi" : "Eski ID noto'g'ri";
+    $('idError').hidden = false;
+  }
+  pendingNewId = null;
+}
+
+// ---------------- Sozlamalar: Qurilmalar (devices_list / device_remove) ----------------
+let devRemoveTarget = null;
+$('devicesBtn').addEventListener('click', () => {
+  if (!send({ type: 'devices_list' })) { toast("Server bilan aloqa yo'q", true); return; }
+  $('devicesList').innerHTML = '<li class="muted">Yuklanmoqda…</li>';
+  $('devRemoveForm').hidden = true;
+  $('devicesBox').hidden = false;
+});
+$('devicesClose').addEventListener('click', () => { $('devicesBox').hidden = true; });
+$('devRemoveCancel').addEventListener('click', () => { $('devRemoveForm').hidden = true; devRemoveTarget = null; });
+
+function renderDevices(items) {
+  const ul = $('devicesList');
+  ul.textContent = '';
+  items = Array.isArray(items) ? items : [];
+  const online = items.filter((d) => d.online).length;
+  $('devicesTitle').textContent = 'Ulangan qurilmalar: ' + items.length + ' (onlayn: ' + online + ')';
+  if (!items.length) {
+    const li = document.createElement('li'); li.className = 'muted'; li.textContent = "Ro'yxat bo'sh"; ul.appendChild(li);
+    return;
+  }
+  for (const d of items) {
+    const li = document.createElement('li');
+    const info = document.createElement('div');
+    const name = document.createElement('div'); name.className = 'dev-name';
+    name.textContent = (d.name || 'Noma\'lum telefon') + (d.current ? ' (shu telefon)' : '');
+    const sub = document.createElement('div'); sub.className = 'dev-sub';
+    if (d.online) { sub.textContent = 'onlayn'; sub.classList.add('on'); }
+    else sub.textContent = d.lastSeen ? 'oxirgi: ' + fmtTime(d.lastSeen) : 'oflayn';
+    info.append(name, sub);
+    li.appendChild(info);
+    if (!d.current) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'btn small-danger'; b.textContent = "O'chirish";
+      b.addEventListener('click', () => {
+        devRemoveTarget = d.deviceId;
+        $('devRemoveText').textContent = '"' + (d.name || 'Telefon') + '" hisobdan o\'chirilsinmi? Tasdiqlash uchun ID ni kiriting.';
+        $('devRemoveId').value = '';
+        $('devRemoveError').hidden = true;
+        $('devRemoveForm').hidden = false;
+        $('devRemoveId').focus();
+      });
+      li.appendChild(b);
+    }
+    ul.appendChild(li);
+  }
+}
+$('devRemoveForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const id = $('devRemoveId').value;
+  if (!devRemoveTarget || !id) { $('devRemoveError').textContent = 'ID ni kiriting'; $('devRemoveError').hidden = false; return; }
+  if (!send({ type: 'device_remove', deviceId: devRemoveTarget, masterPassword: id })) toast("Server bilan aloqa yo'q", true);
+});
+const DEV_REMOVE_ERRORS = {
+  wrong_id: "ID noto'g'ri",
+  self: "Shu telefonni o'chirib bo'lmaydi",
+  too_many_attempts: "Ko'p marta xato kiritildi - 1 daqiqadan keyin urinib ko'ring",
+  not_found: 'Qurilma topilmadi',
+};
+function onDeviceRemoveResult(msg) {
+  if (msg.ok) {
+    toast("Qurilma o'chirildi");
+    $('devRemoveForm').hidden = true;
+    devRemoveTarget = null;
+  } else {
+    $('devRemoveError').textContent = DEV_REMOVE_ERRORS[msg.reason] || "O'chirib bo'lmadi";
+    $('devRemoveError').hidden = false;
+  }
+}
 
 // ---------------- O'rnatish va push ----------------
 function isIos() { return /iphone|ipad|ipod/i.test(navigator.userAgent); }
