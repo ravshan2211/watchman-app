@@ -66,6 +66,9 @@ function deviceName() {
 function showView(name) {
   $('loginView').hidden = name !== 'login';
   $('mainView').hidden = name !== 'main';
+  // Asosiy ekran - qotirilgan (iOS rezina surilishisiz); kirish oynasi klaviatura
+  // chiqqanda surila olsin.
+  document.documentElement.classList.toggle('app-locked', name === 'main');
 }
 
 let toastTimer = null;

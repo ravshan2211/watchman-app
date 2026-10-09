@@ -59,6 +59,17 @@ input, textarea {
   -webkit-touch-callout: default;
 }
 img { -webkit-user-drag: none; pointer-events: none; }
+
+/* Asosiy ekran ochiq bo'lganda sahifa iOS'da yuqoriga/pastga "rezinadek"
+   surilib ketmasin - Android ilovadagidek qotib tursin. Ichki sahifalar
+   (.page, .home) o'z ichida suriladi. */
+html.app-locked, html.app-locked body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+html.app-locked body { position: fixed; inset: 0; width: 100%; background: #ff871f; }
+html.app-locked body:has(#mainView.dark) { background: #000; }
 button { font: inherit; }
 
 .view { min-height: 100vh; }
@@ -125,8 +136,11 @@ button { font: inherit; }
   --warn: #fb0000;
   background: var(--app-bg);
   color: var(--text);
-  min-height: 100vh;
-  min-height: 100dvh;
+  /* Ekranga to'liq sig'adi: toolbar tepada, .home qolgan joyni egallaydi. */
+  height: 100vh;
+  height: 100dvh;
+  display: flex; flex-direction: column;
+  overflow: hidden;
   font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 #mainView.dark {
@@ -191,10 +205,10 @@ button { font: inherit; }
 .home {
   display: flex; flex-direction: column; align-items: center;
   justify-content: space-evenly;
-  min-height: calc(100vh - 60px - var(--safe-t));
-  min-height: calc(100dvh - 60px - var(--safe-t));
+  flex: 1 1 auto; min-height: 0;
+  overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
   padding: 8px 0 calc(12px + var(--safe-b));
-  max-width: 520px; margin: 0 auto;
+  width: 100%; max-width: 520px; margin: 0 auto;
 }
 .car-area { position: relative; width: 100%; display: flex; justify-content: center; align-items: center; }
 .side {
@@ -279,7 +293,7 @@ button { font: inherit; }
 .round:focus-visible, .engine:focus-visible, .menu-item:focus-visible, .wide-btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 
 /* ---------- Ichki sahifalar (Sozlamalar, Komandalar, ...) ---------- */
-.page { position: fixed; inset: 0; z-index: 10; background: var(--app-bg); overflow-y: auto; }
+.page { position: fixed; inset: 0; z-index: 10; background: var(--app-bg); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 .page-body { padding: 20px 20px calc(24px + var(--safe-b)); max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
 .aux-card { background: var(--card-bg); border-radius: 12px; padding: 18px 10px; display: flex; justify-content: space-around; }
 .switch-row {
@@ -333,6 +347,7 @@ button { font: inherit; }
 .hist li .t { white-space: nowrap; font-variant-numeric: tabular-nums; opacity: 0.85; }
 
 .banner {
+  flex: none;
   margin: 12px 16px 0; padding: 12px 14px; border-radius: 12px;
   background: rgba(255, 255, 255, 0.88); color: #000; font-size: 14px;
 }
