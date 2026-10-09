@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>WATCHMAN</title>
 <meta name="description" content="Avtomobilni telefondan boshqarish: qulflash, avtozapusk, qo'riqlash">
-<meta name="theme-color" content="#1c4585">
+<meta name="theme-color" content="#141414">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -36,11 +36,14 @@
   <p class="hint">Login, parol va ID qurilma o'rnatilganda beriladi.</p>
 </section>
 
-<!-- ============ ASOSIY ============ -->
+<!-- ============ ASOSIY (Android ilova ko'rinishida) ============ -->
 <section id="mainView" class="view" hidden>
-  <header class="topbar">
-    <div class="logo small"><span>WATCH</span><span class="orange">MAN</span></div>
-    <div id="connPill" class="pill" aria-live="polite">Ulanmoqda…</div>
+  <header class="toolbar">
+    <button id="menuBtn" class="tb-btn" aria-label="Menyu"><span class="mask ico-menu"></span></button>
+    <div class="tb-title">WATCHMAN</div>
+    <div id="connPill" class="conn wait" role="status" aria-label="Ulanmoqda">
+      <span></span><span></span><span></span><span></span>
+    </div>
   </header>
 
   <div id="installHint" class="banner" hidden>
@@ -49,115 +52,113 @@
 
   <div id="toast" class="toast" role="status" hidden></div>
 
-  <!-- Boshqaruv -->
-  <main id="tab-control" class="tab">
-    <section class="card status-card">
-      <div class="status-head">
-        <div>
-          <div class="label">Mashina</div>
-          <div id="guardText" class="big">—</div>
+  <main id="home" class="home">
+    <div class="car-area">
+      <div class="side left">
+        <div class="cap">TEMP</div><div id="tempVal" class="val">-</div>
+        <div class="cap">PRNDL</div><div id="gearVal" class="val">-</div>
+      </div>
+      <div class="car-wrap">
+        <img id="carImg" class="car" src="img/ic_car.png" alt="Avtomobil">
+        <img id="lockBadge" class="lock-badge" src="img/ic_lock.svg" alt="" hidden>
+        <div id="smoke" class="smoke" hidden>
+          <img src="img/ic_car_tutun1.svg" alt=""><img src="img/ic_car_tutun2.svg" alt="">
         </div>
-        <div id="engineBadge" class="badge off">Dvigatel o'chiq</div>
       </div>
-      <dl class="grid">
-        <div><dt>Eshiklar</dt><dd id="doorsVal">—</dd></div>
-        <div><dt>Bagaj</dt><dd id="trunkVal">—</dd></div>
-        <div><dt>Uzatma</dt><dd id="gearVal">—</dd></div>
-        <div><dt>Akkumulyator</dt><dd id="batVal">—</dd></div>
-        <div><dt>Harorat</dt><dd id="tempVal">—</dd></div>
-        <div><dt>Chiroqlar</dt><dd id="lampVal">—</dd></div>
-      </dl>
-      <p id="autostartLine" class="autostart" hidden></p>
-      <p id="updatedLine" class="muted small"></p>
-    </section>
-
-    <section class="actions">
-      <button class="btn action lock" data-cmd="Lock">
-        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Qulflash
-      </button>
-      <button class="btn action unlock" data-cmd="UnLock">
-        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>Ochish
-      </button>
-      <button class="btn action start" data-cmd="EngineStart" data-confirm="Dvigatelni masofadan yoqish (yoki yoniq bo'lsa o'chirish)?">
-        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v9"/><path d="M6.3 7.3a8 8 0 1 0 11.4 0"/></svg>Zavod
-      </button>
-      <button class="btn action" data-cmd="Bagaj" data-confirm="Bagajni ochish?">
-        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15h18l-2-6H5z"/><path d="M5 15v3h14v-3"/><path d="M12 3v5M9.5 5.5 12 3l2.5 2.5"/></svg>Bagaj
-      </button>
-    </section>
-
-    <section class="actions small-actions">
-      <button class="btn action" data-cmd="Aux 1">AUX 1</button>
-      <button class="btn action" data-cmd="Aux 2">AUX 2</button>
-      <button class="btn action" data-cmd="Aux 3">AUX 3</button>
-    </section>
-
-    <section class="card">
-      <div class="row-between">
-        <div class="label">Mashina joylashuvi</div>
-        <button id="locRefresh" class="btn ghost">Yangilash</button>
+      <div class="side right">
+        <div class="cap">AKB</div><div id="batVal" class="val">-</div>
+        <div class="cap">ACC</div><div id="accVal" class="val">-</div>
+        <div id="countdown" class="countdown" hidden></div>
       </div>
-      <p id="locText" class="muted">Hali aniqlanmagan</p>
-      <p id="locError" class="muted small" hidden></p>
-      <div id="locMapWrap" class="map" hidden>
-        <iframe id="locMap" title="Mashina joylashuvi xaritada" loading="lazy" referrerpolicy="no-referrer"></iframe>
-      </div>
-      <div id="locLinks" class="row" hidden>
-        <a id="locGoogle" class="btn" target="_blank" rel="noopener">Google xarita</a>
-        <a id="locYandex" class="btn" target="_blank" rel="noopener">Yandex xarita</a>
-      </div>
-    </section>
+    </div>
+    <p id="openWarn" class="open-warn" hidden></p>
 
-    <section class="card">
-      <div class="label">Oxirgi ogohlantirishlar</div>
-      <ul id="alertList" class="list"><li class="muted">Hozircha yo'q</li></ul>
-    </section>
+    <div class="main-row">
+      <button class="round big" data-cmd="Lock" aria-label="Qulflash"><span class="mask ico-lock"></span></button>
+      <button id="engineBtn" class="engine" data-cmd="EngineStart" data-confirm="Dvigatelni masofadan yoqish (yoki yoniq bo'lsa o'chirish)?" aria-label="Engine start stop">
+        <span class="engine-in"><b>ENGINE</b><small>START<br>STOP</small></span>
+      </button>
+      <button class="round big" data-cmd="UnLock" aria-label="Ochish"><span class="mask ico-unlock"></span></button>
+    </div>
+
+    <div class="aux-row">
+      <button class="round" data-cmd="Aux 1" aria-label="AUX 1"><span class="mask ico-aux1"></span></button>
+      <button class="round" data-cmd="Aux 2" aria-label="AUX 2"><span class="mask ico-aux2"></span></button>
+      <button class="round" data-cmd="Aux 3" aria-label="AUX 3"><span class="mask ico-aux3"></span></button>
+      <button class="round" data-cmd="Bagaj" data-confirm="Bagajni ochish?" aria-label="Bagaj"><span class="mask ico-bagaj"></span></button>
+      <button class="round" data-cmd="MatorBlockOff" data-confirm="Dvigatelni blokdan chiqarish?" aria-label="Motor blokdan chiqarish"><span class="mask ico-block-off"></span></button>
+      <button class="round" data-cmd="MatorBlockOn" data-confirm="Dvigatelni bloklash?" aria-label="Motorni bloklash"><span class="mask ico-block-on"></span></button>
+    </div>
   </main>
 
-  <!-- Tarix -->
-  <main id="tab-history" class="tab" hidden>
-    <section class="card">
-      <div class="row-between">
-        <div class="label">Voqealar tarixi</div>
-        <button id="historyRefresh" class="btn ghost">Yangilash</button>
+  <!-- Menyu (Android'dagi "Sozlamalar" oynasi kabi) -->
+  <section id="page-menu" class="page" hidden>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">Sozlamalar</div></header>
+    <div class="page-body">
+      <div class="aux-card">
+        <button class="round small" data-cmd="Aux 1" aria-label="AUX 1"><span class="mask ico-aux1"></span></button>
+        <button class="round small" data-cmd="Aux 2" aria-label="AUX 2"><span class="mask ico-aux2"></span></button>
+        <button class="round small" data-cmd="Aux 3" aria-label="AUX 3"><span class="mask ico-aux3"></span></button>
       </div>
-      <ul id="historyList" class="list"><li class="muted">Yuklanmoqda…</li></ul>
-    </section>
-  </main>
-
-  <!-- Sozlamalar -->
-  <main id="tab-settings" class="tab" hidden>
-    <section class="card">
-      <div class="label">Bildirishnomalar</div>
-      <p id="pushStatus" class="muted">—</p>
-      <button id="pushBtn" class="btn primary wide" hidden>Bildirishnomalarni yoqish</button>
-    </section>
-    <section class="card">
-      <div class="label">Signal ovozi</div>
-      <p class="muted">Ilova ochiq turganda ogohlantirish kelsa, telefon qo'ng'irog'idek jiringlaydi (1 daqiqagacha yoki "To'xtatish" bosilguncha).</p>
-      <button id="ringTest" class="btn wide">Signalni sinash</button>
-    </section>
-    <section class="card">
-      <div class="label">Motor blok</div>
-      <p class="muted">Yoqilganda dvigatel ishga tushmaydi.</p>
-      <div class="row">
-        <button class="btn danger" data-cmd="MatorBlockOn" data-confirm="Dvigatelni bloklash?">Bloklash</button>
-        <button class="btn" data-cmd="MatorBlockOff" data-confirm="Blokdan chiqarish?">Blokdan chiqarish</button>
+      <label class="switch-row"><span>Tungi rejim</span><input id="darkToggle" type="checkbox" role="switch"><i></i></label>
+      <div class="menu-list">
+        <button class="menu-item" data-page="history">Komandalar <span>›</span></button>
+        <button class="menu-item" data-page="location">Joylashuv <span>›</span></button>
+        <button class="menu-item" data-page="push">Bildirishnomalar <span>›</span></button>
+        <button id="logoutBtn" class="menu-item danger">Chiqish</button>
       </div>
-    </section>
-    <section class="card">
-      <div class="label">Hisob</div>
-      <p class="muted">Login: <b id="loginShown">—</b></p>
-      <button id="logoutBtn" class="btn ghost wide">Chiqish</button>
-    </section>
-    <p class="muted small center"><a href="https://ravshan2211.github.io/watchman-privacy-new/" target="_blank" rel="noopener">Maxfiylik siyosati</a></p>
-  </main>
+      <p class="page-note">Login: <b id="loginShown">—</b> · <a href="https://ravshan2211.github.io/watchman-privacy-new/" target="_blank" rel="noopener">Maxfiylik siyosati</a></p>
+    </div>
+  </section>
 
-  <nav class="tabbar" role="tablist">
-    <button class="tabbtn active" data-tab="control" role="tab" aria-selected="true">Boshqaruv</button>
-    <button class="tabbtn" data-tab="history" role="tab" aria-selected="false">Tarix</button>
-    <button class="tabbtn" data-tab="settings" role="tab" aria-selected="false">Sozlamalar</button>
-  </nav>
+  <!-- Komandalar (tarix) -->
+  <section id="page-history" class="page" hidden>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">Komandalar</div></header>
+    <div class="page-body">
+      <button id="historyRefresh" class="wide-btn">Yangilash</button>
+      <div class="plain-card">
+        <div class="card-cap">Oxirgi ogohlantirishlar</div>
+        <ul id="alertList" class="list"><li class="muted">Hozircha yo'q</li></ul>
+      </div>
+      <ul id="historyList" class="hist"><li class="muted">Yuklanmoqda…</li></ul>
+    </div>
+  </section>
+
+  <!-- Joylashuv -->
+  <section id="page-location" class="page" hidden>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">Joylashuv</div></header>
+    <div class="page-body">
+      <button id="locRefresh" class="wide-btn">Yangilash</button>
+      <div class="plain-card">
+        <p id="locText" class="muted">Hali aniqlanmagan</p>
+        <p id="locError" class="muted small" hidden></p>
+        <div id="locMapWrap" class="map" hidden>
+          <iframe id="locMap" title="Mashina joylashuvi xaritada" loading="lazy" referrerpolicy="no-referrer"></iframe>
+        </div>
+        <div id="locLinks" class="row" hidden>
+          <a id="locGoogle" class="wide-btn light" target="_blank" rel="noopener">Google xarita</a>
+          <a id="locYandex" class="wide-btn light" target="_blank" rel="noopener">Yandex xarita</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bildirishnomalar -->
+  <section id="page-push" class="page" hidden>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">Bildirishnomalar</div></header>
+    <div class="page-body">
+      <div class="plain-card">
+        <div class="card-cap">Bildirishnomalar</div>
+        <p id="pushStatus" class="muted">—</p>
+        <button id="pushBtn" class="wide-btn" hidden>Bildirishnomalarni yoqish</button>
+      </div>
+      <div class="plain-card">
+        <div class="card-cap">Signal ovozi</div>
+        <p class="muted">Ilova ochiq turganda ogohlantirish kelsa, telefon qo'ng'irog'idek jiringlaydi (1 daqiqagacha yoki "To'xtatish" bosilguncha).</p>
+        <button id="ringTest" class="wide-btn">Signalni sinash</button>
+      </div>
+    </div>
+  </section>
 </section>
 
 <!-- Tasdiqlash oynasi (confirm() iPhone veb-ilovasida noqulay) -->

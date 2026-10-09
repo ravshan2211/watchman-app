@@ -1,7 +1,7 @@
 // WATCHMAN veb-ilovasi service worker'i:
 // 1) ilova qobig'ini keshlaydi - internet sekin bo'lsa ham tez ochiladi;
 // 2) serverdan kelgan push-bildirishnomalarni ko'rsatadi (ilova yopiq bo'lsa ham).
-const CACHE = 'watchman-v5';
+const CACHE = 'watchman-v6';
 const SHELL = [
   './',
   './index.html',
@@ -11,6 +11,20 @@ const SHELL = [
   './icons/apple-touch-icon.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
+  './img/ic_bot_aux1.svg',
+  './img/ic_bot_aux2.svg',
+  './img/ic_bot_aux3.svg',
+  './img/ic_bot_bagaj.svg',
+  './img/ic_bot_lock.svg',
+  './img/ic_bot_mator_block_off.svg',
+  './img/ic_bot_mator_block_on.svg',
+  './img/ic_bot_un_lock.svg',
+  './img/ic_car.png',
+  './img/ic_car_tutun1.svg',
+  './img/ic_car_tutun2.svg',
+  './img/ic_lock.svg',
+  './img/ic_lock_ochiq.svg',
+  './img/ic_menu_local.svg',
 ];
 
 self.addEventListener('install', (event) => {

@@ -72,8 +72,9 @@ function toast(text, isAlert) {
 
 function setConn(kind, text) {
   const p = $('connPill');
-  p.className = 'pill ' + kind;
-  p.textContent = text;
+  p.className = 'conn ' + kind;
+  p.setAttribute('aria-label', text);
+  p.title = text;
   document.querySelectorAll('[data-cmd]').forEach((b) => { b.disabled = !(state.authed && state.deviceOnline); });
   $('locRefresh').disabled = !(state.authed && state.deviceOnline) || !!state.locPendingTimer;
 }
@@ -86,36 +87,52 @@ function updateConnPill() {
 
 function yes(v) { return typeof v === 'string' ? /ochiq|yoqilgan|toldirilgan/i.test(v) : !!v; }
 
+// Android'dagi kabi: eshik/bagaj/kapot holatiga qarab mashina rasmi.
+const CAR_IMAGES = {
+  '000': 'ic_car', '100': 'ic_car_ochiq', '010': 'ic_car_bagaj_ochiq', '001': 'ic_car_kapot_ochiq',
+  '110': 'ic_car_eshik_bagaj_ochiq', '101': 'ic_car_eshik_kapot_ochiq', '011': 'ic_car_bagaj_kapot_ochiq',
+  '111': 'ic_car_hammasi_ochiq',
+};
+
 function renderStatus() {
   const s = state.status;
   const guardOn = s.quriqlash !== undefined ? /yoqilgan/i.test(s.quriqlash) : null;
-  $('guardText').textContent = guardOn === null ? '—' : guardOn ? "Qo'riqlashda" : "Qo'riqlash o'chiq";
+  const badge = $('lockBadge');
+  badge.hidden = guardOn === null;
+  if (guardOn !== null) {
+    const src = guardOn ? 'img/ic_lock.svg' : 'img/ic_lock_ochiq.svg';
+    if (badge.getAttribute('src') !== src) badge.setAttribute('src', src);
+    badge.alt = guardOn ? "Qo'riqlashda" : "Qo'riqlash o'chiq";
+  }
 
   const engineOn = s.mator !== undefined ? /toldirilgan/i.test(s.mator) : s.accOn === true;
-  const badge = $('engineBadge');
-  badge.className = 'badge ' + (engineOn ? 'on' : 'off');
-  badge.textContent = engineOn ? 'Dvigatel ishlayapti' : s.accOn === 'ACC_HIGH' ? 'Kontakt yoniq' : "Dvigatel o'chiq";
+  $('smoke').hidden = !engineOn;
+  $('engineBtn').classList.toggle('running', engineOn);
 
-  const doorsOpen = s.doorsOpen !== undefined ? s.doorsOpen : s.avtoulov !== undefined ? yes(s.avtoulov) : null;
-  setVal('doorsVal', doorsOpen === null ? '—' : doorsOpen ? 'Ochiq' : 'Yopiq', doorsOpen);
-  const trunkOpen = s.bagajHolati !== undefined ? /ochiq/i.test(s.bagajHolati) : null;
-  setVal('trunkVal', trunkOpen === null ? '—' : trunkOpen ? 'Ochiq' : 'Yopiq', trunkOpen);
-  setVal('gearVal', s.gear || '—');
-  setVal('batVal', s.akbQuvvati ? s.akbQuvvati + ' V' : '—', s.akbQuvvati && parseFloat(s.akbQuvvati) < 11.8);
-  setVal('tempVal', typeof s.coolantC === 'number' ? s.coolantC + ' °C' : '—', typeof s.coolantC === 'number' && s.coolantC >= 105);
-  const lamp = s.turnSignal && s.turnSignal !== "o'chiq" ? s.turnSignal : s.hazardOn ? 'avariya' : "o'chiq";
-  setVal('lampVal', s.turnSignal !== undefined || s.hazardOn !== undefined ? lamp : '—', lamp === 'avariya');
+  const doorsOpen = s.doorsOpen !== undefined ? !!s.doorsOpen : s.avtoulov !== undefined ? yes(s.avtoulov) : false;
+  const trunkOpen = s.bagajHolati !== undefined && /ochiq/i.test(s.bagajHolati);
+  const hoodOpen = s.kapotHolati !== undefined && /ochiq/i.test(s.kapotHolati);
+  const key = (doorsOpen ? '1' : '0') + (trunkOpen ? '1' : '0') + (hoodOpen ? '1' : '0');
+  const carSrc = 'img/' + CAR_IMAGES[key] + '.png';
+  if ($('carImg').getAttribute('src') !== carSrc) $('carImg').setAttribute('src', carSrc);
+  const open = [doorsOpen && 'Eshik ochiq', trunkOpen && 'Bagaj ochiq', hoodOpen && 'Kapot ochiq'].filter(Boolean);
+  $('openWarn').textContent = open.join(', ');
+  $('openWarn').hidden = !open.length;
 
-  const line = $('autostartLine');
-  if (typeof s.autoStartRemainingSec === 'number' && s.autoStartRemainingSec > 0) {
+  setVal('tempVal', typeof s.coolantC === 'number' ? s.coolantC + '°C' : '-', typeof s.coolantC === 'number' && s.coolantC >= 105);
+  setVal('gearVal', s.gear || '-');
+  setVal('batVal', s.akbQuvvati ? s.akbQuvvati + 'V' : '-', s.akbQuvvati && parseFloat(s.akbQuvvati) < 11.8);
+  setVal('accVal', s.accOn === 'ACC_HIGH' ? 'HIGH' : s.accOn === undefined && s.mator === undefined ? '-' : engineOn ? 'ON' : 'OFF');
+
+  const cd = $('countdown');
+  if (engineOn && typeof s.autoStartRemainingSec === 'number' && s.autoStartRemainingSec > 0) {
     const m = Math.floor(s.autoStartRemainingSec / 60);
     const sec = String(s.autoStartRemainingSec % 60).padStart(2, '0');
-    line.textContent = `Avtozapusk: ${m}:${sec} dan keyin o'chadi`;
-    line.hidden = false;
+    cd.textContent = m + ':' + sec;
+    cd.hidden = false;
   } else {
-    line.hidden = true;
+    cd.hidden = true;
   }
-  $('updatedLine').textContent = state.statusAt ? 'Yangilangan: ' + fmtTime(state.statusAt) : '';
 }
 
 function setVal(id, text, isAlert) {
@@ -130,6 +147,12 @@ function fmtTime(ts) {
   const hm = d.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' });
   if (d.toDateString() === now.toDateString()) return hm;
   return d.toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit' }) + ' ' + hm;
+}
+
+function fmtHistTime(ts) {
+  const d = new Date(ts);
+  const p = (n) => String(n).padStart(2, '0');
+  return p(d.getDate()) + '.' + p(d.getMonth() + 1) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
 }
 
 function renderAlerts() {
@@ -215,16 +238,19 @@ function renderHistory(events) {
   }
   for (const e of events) {
     const li = document.createElement('li');
+    const tm = document.createElement('span'); tm.className = 't'; tm.textContent = fmtHistTime(e.ts);
     const t = document.createElement('span'); t.textContent = e.event;
-    const tm = document.createElement('span'); tm.className = 't'; tm.textContent = fmtTime(e.ts);
-    li.append(t, tm);
+    li.append(tm, t);
     ul.appendChild(li);
   }
 }
 
 // ---------------- WebSocket ----------------
+// Faqat server kirishni tasdiqlagach (auth_ok). Aks holda ulanish ochilgan
+// zahoti (auth hali yuborilmay turib) ketgan buyruqni server "noto'g'ri kirish
+// xabari" deb rad etadi va ilova hisobdan chiqib ketadi.
 function send(obj) {
-  if (state.ws && state.ws.readyState === WebSocket.OPEN) {
+  if (state.authed && state.ws && state.ws.readyState === WebSocket.OPEN) {
     state.ws.send(JSON.stringify(obj));
     return true;
   }
@@ -282,8 +308,7 @@ function handleMessage(msg) {
     case 'auth_ok':
       state.authed = true;
       state.reconnectDelay = 2000;
-      // Qurilma buyruqlarni faqat ID tasdiqlangandan keyin bajaradi.
-      send({ type: 'cmd', cmd: 'VerifyMasterPassword', password: state.creds.id });
+      // ID ni server kirishda tekshiradi - qurilmaga alohida tasdiq kerak emas.
       send({ type: 'cmd', cmd: 'RequestStatus' });
       updateConnPill();
       break;
@@ -299,7 +324,9 @@ function handleMessage(msg) {
     case 'device_status':
       state.deviceOnline = !!msg.online;
       updateConnPill();
-      if (msg.online) send({ type: 'cmd', cmd: 'RequestStatus' });
+      if (msg.online) {
+        send({ type: 'cmd', cmd: 'RequestStatus' });
+      }
       break;
     case 'push_config':
       state.pushPublicKey = msg.publicKey;
@@ -338,9 +365,6 @@ function handleMessage(msg) {
       // skanerlash xatosi eski ma'lum joyni ko'rsatib turishga xalaqit bermasin.
       if (state.locPendingTimer) showLocError(msg.reason);
       break;
-    case 'master_password_result':
-      if (!msg.ok) toast("Mashina ID ni tasdiqlamadi - buyruqlar bajarilmaydi. ID ni tekshiring.", true);
-      break;
     case 'push_subscribe_result':
       refreshPushUi(msg.ok ? 'Yoqilgan' : "Serverda saqlanmadi");
       break;
@@ -370,6 +394,7 @@ function logoutLocal(errorText) {
   $('locError').hidden = true;
   renderLocation();
   clearCreds();
+  closeAllPages();
   showView('login');
   const err = $('loginError');
   err.textContent = errorText || '';
@@ -419,7 +444,7 @@ document.addEventListener('click', async (e) => {
   const cmd = btn.dataset.cmd;
   if (btn.dataset.confirm && !(await askConfirm(btn.dataset.confirm))) return;
   if (send({ type: 'cmd', cmd })) {
-    toast('Yuborildi: ' + btn.textContent.replace(/\s+/g, ' ').trim());
+    toast('Yuborildi: ' + (btn.getAttribute('aria-label') || btn.textContent).replace(/\s+/g, ' ').trim());
     if (navigator.vibrate) navigator.vibrate(30);
   } else {
     toast("Server bilan aloqa yo'q", true);
@@ -441,21 +466,44 @@ function askConfirm(text) {
   });
 }
 
-// ---------------- Tablar ----------------
-document.querySelectorAll('.tabbtn').forEach((b) => {
-  b.addEventListener('click', () => {
-    const tab = b.dataset.tab;
-    document.querySelectorAll('.tabbtn').forEach((x) => {
-      const on = x === b;
-      x.classList.toggle('active', on);
-      x.setAttribute('aria-selected', on ? 'true' : 'false');
-    });
-    document.querySelectorAll('.tab').forEach((t) => { t.hidden = t.id !== 'tab-' + tab; });
-    if (tab === 'history') send({ type: 'cmd', cmd: 'GetHistory' });
-    if (tab === 'settings') refreshPushUi();
-  });
-});
+// ---------------- Sahifalar (Android: ☰ -> Sozlamalar -> ...) ----------------
+const pageStack = [];
+function openPage(name) {
+  const el = $('page-' + name);
+  if (!el) return;
+  pageStack.forEach((p) => { $('page-' + p).hidden = true; });
+  pageStack.push(name);
+  el.hidden = false;
+  el.scrollTop = 0;
+  if (name === 'history') send({ type: 'cmd', cmd: 'GetHistory' });
+  if (name === 'push') refreshPushUi();
+}
+function closePage() {
+  const cur = pageStack.pop();
+  if (cur) $('page-' + cur).hidden = true;
+  const prev = pageStack[pageStack.length - 1];
+  if (prev) $('page-' + prev).hidden = false;
+}
+function closeAllPages() {
+  while (pageStack.length) closePage();
+}
+$('menuBtn').addEventListener('click', () => openPage('menu'));
+document.querySelectorAll('[data-page]').forEach((b) => b.addEventListener('click', () => openPage(b.dataset.page)));
+document.querySelectorAll('[data-back]').forEach((b) => b.addEventListener('click', closePage));
 $('historyRefresh').addEventListener('click', () => send({ type: 'cmd', cmd: 'GetHistory' }));
+
+// Tungi rejim (Android'dagi "Световой режим") - shu telefonda eslab qolinadi.
+const THEME_KEY = 'watchman.theme';
+function applyTheme(dark) {
+  $('mainView').classList.toggle('dark', dark);
+  $('darkToggle').checked = dark;
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', dark ? '#000000' : '#141414');
+}
+$('darkToggle').addEventListener('change', (e) => {
+  applyTheme(e.target.checked);
+  try { localStorage.setItem(THEME_KEY, e.target.checked ? 'dark' : 'light'); } catch { /* e'tiborsiz */ }
+});
+try { applyTheme(localStorage.getItem(THEME_KEY) === 'dark'); } catch { applyTheme(false); }
 
 // ---------------- O'rnatish va push ----------------
 function isIos() { return /iphone|ipad|ipod/i.test(navigator.userAgent); }
