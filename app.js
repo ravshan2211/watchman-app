@@ -902,6 +902,10 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 window.addEventListener('online', () => { if (state.creds && !state.ws) connect(); });
+// Tugmani bosib turganda kontekst menyusi chiqmasin (yozish maydonlaridan tashqari).
+document.addEventListener('contextmenu', (e) => {
+  if (!e.target.closest('input, textarea')) e.preventDefault();
+});
 
 // ---------------- Boshlash ----------------
 state.creds = loadCreds();

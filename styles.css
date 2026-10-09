@@ -44,6 +44,21 @@ body {
   line-height: 1.45;
 }
 [hidden] { display: none !important; }
+
+/* Ilovadek ishlashi uchun: tugmani bosib turganda iOS matn belgilash,
+   "Скопировать" menyusi va rasmni saqlash oynasini chiqarmasin.
+   Yozish maydonlarida nusxalash/qo'yish ishlab qoladi. */
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+input, textarea {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+img { -webkit-user-drag: none; pointer-events: none; }
 button { font: inherit; }
 
 .view { min-height: 100vh; }
