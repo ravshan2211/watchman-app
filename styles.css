@@ -206,7 +206,7 @@ button { font: inherit; }
   display: flex; flex-direction: column; align-items: center;
   justify-content: space-evenly;
   flex: 1 1 auto; min-height: 0;
-  overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  overflow: hidden;
   padding: 8px 0 calc(12px + var(--safe-b));
   width: 100%; max-width: 520px; margin: 0 auto;
 }
@@ -222,7 +222,8 @@ button { font: inherit; }
 .side .val { font-size: 18px; margin-bottom: 18px; font-variant-numeric: tabular-nums; }
 .side .val.alert { color: var(--warn); font-weight: 700; }
 .countdown { font-size: 15px; margin-top: -12px; font-variant-numeric: tabular-nums; }
-.car-wrap { position: relative; width: min(64vw, 330px); }
+/* Rasm (560x650) ekran balandligiga ham sig'adi - bosh ekran hech qachon surilmaydi. */
+.car-wrap { position: relative; width: min(64vw, 330px, calc((100dvh - 60px - var(--safe-t) - var(--safe-b)) * 0.38)); }
 .car { display: block; width: 100%; height: auto; }
 .lock-badge {
   position: absolute; left: 50%; top: 27%; width: 31%;
@@ -283,7 +284,7 @@ button { font: inherit; }
 
 .aux-row {
   display: flex; gap: 18px; width: 100%;
-  overflow-x: auto; padding: 6px 18px;
+  overflow-x: auto; padding: 6px 18px; touch-action: pan-x; overscroll-behavior-x: contain;
   scrollbar-width: none; -webkit-overflow-scrolling: touch;
 }
 .aux-row::-webkit-scrollbar { display: none; }

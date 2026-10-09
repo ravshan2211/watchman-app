@@ -905,6 +905,15 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 window.addEventListener('online', () => { if (state.creds && !state.ws) connect(); });
+// iOS bosh ekranni barmoq bilan tortganda "rezinadek" surib yubormasin (Android
+// ilovadagidek qotib tursin). Surilishi kerak bo'lgan joylar: AUX qatori (yonga),
+// ichki sahifalar va oynalar.
+document.addEventListener('touchmove', (e) => {
+  if (!document.documentElement.classList.contains('app-locked')) return;
+  if (e.target.closest('.page, .modal, .ring, .aux-row')) return;
+  e.preventDefault();
+}, { passive: false });
+
 // Tugmani bosib turganda kontekst menyusi chiqmasin (yozish maydonlaridan tashqari).
 document.addEventListener('contextmenu', (e) => {
   if (!e.target.closest('input, textarea')) e.preventDefault();
