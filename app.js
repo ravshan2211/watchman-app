@@ -673,7 +673,14 @@ function onMasterPasswordResult(msg) {
     ['idOld', 'idNew', 'idNew2'].forEach((id) => { $(id).value = ''; });
     toast("ID o'zgartirildi");
   } else {
-    $('idError').textContent = msg.reason === 'demo' ? "Demo hisobda ID ni o'zgartirib bo'lmaydi" : "Eski ID noto'g'ri";
+    const reasons = {
+      demo: "Demo hisobda ID ni o'zgartirib bo'lmaydi",
+      device_offline: "Mashina oflayn - ID o'zgartirilmadi. Mashina internetga ulanganda qayta urinib ko'ring",
+      device_timeout: "Mashina javob bermadi - ID o'zgartirilmadi. Qayta urinib ko'ring",
+      device_rejected: "Mashina ID ni qabul qilmadi - ID o'zgartirilmadi",
+      busy: "ID o'zgartirilmoqda, biroz kuting",
+    };
+    $('idError').textContent = reasons[msg.reason] || "Eski ID noto'g'ri";
     $('idError').hidden = false;
   }
   pendingNewId = null;
