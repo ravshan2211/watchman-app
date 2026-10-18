@@ -132,6 +132,11 @@ function renderStatus() {
 
   setVal('tempVal', typeof s.coolantC === 'number' ? s.coolantC + '°C' : '-', typeof s.coolantC === 'number' && s.coolantC >= 105);
   setVal('gearVal', s.gear || '-');
+  // Tezlik faqat CAN'dan keladigan mashinada (Nexia 3) ko'rsatiladi.
+  const hasSpeed = typeof s.speedKmh === 'number';
+  $('speedCap').hidden = !hasSpeed;
+  $('speedVal').hidden = !hasSpeed;
+  if (hasSpeed) setVal('speedVal', String(s.speedKmh), s.speedKmh > 0 && !engineOn);
   setVal('batVal', s.akbQuvvati ? s.akbQuvvati + 'V' : '-', s.akbQuvvati && parseFloat(s.akbQuvvati) < 11.8);
   setVal('accVal', s.accOn === 'ACC_HIGH' ? 'HIGH' : s.accOn === undefined && s.mator === undefined ? '-' : engineOn ? 'ON' : 'OFF');
 
