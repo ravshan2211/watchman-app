@@ -21,7 +21,8 @@ const state = {
   ws: null,
   authed: false,
   deviceOnline: false,
-  reconnectDelay: 2000,
+  reconnectDelay: 0,
+  hiddenAt: 0,
   reconnectTimer: null,
   pushPublicKey: null,
   status: {},
@@ -317,14 +318,14 @@ function scheduleReconnect() {
   clearTimeout(state.reconnectTimer);
   if (!state.creds) return;
   state.reconnectTimer = setTimeout(connect, state.reconnectDelay);
-  state.reconnectDelay = Math.min(state.reconnectDelay * 2, 30000);
+  state.reconnectDelay = Math.min(Math.max(state.reconnectDelay * 2, 1000), 30000);
 }
 
 function handleMessage(msg) {
   switch (msg.type) {
     case 'auth_ok':
       state.authed = true;
-      state.reconnectDelay = 2000;
+      state.reconnectDelay = 0;
       // ID ni server kirishda tekshiradi - qurilmaga alohida tasdiq kerak emas.
       send({ type: 'cmd', cmd: 'RequestStatus' });
       updateConnPill();
@@ -353,6 +354,7 @@ function handleMessage(msg) {
       state.deviceOnline = true;
       Object.assign(state.status, msg);
       state.statusAt = Date.now();
+      saveLastStatus();
       updateConnPill();
       renderStatus();
       if (!$('page-general').hidden) renderWifiNow();
@@ -401,7 +403,21 @@ function handleMessage(msg) {
 }
 
 // ---------------- Kirish / chiqish ----------------
+// Oxirgi holat telefonda (login bo'yicha) saqlanadi - ilova ochilishi bilan darhol
+// ko'rsatiladi, server/mashinadan yangisi kelguncha kutib turilmaydi.
+const LAST_STATUS_KEY = 'watchman.lastStatus';
+function saveLastStatus() {
+  try { localStorage.setItem(LAST_STATUS_KEY, JSON.stringify({ login: state.creds && state.creds.login, status: state.status })); } catch { /* e'tiborsiz */ }
+}
+function loadLastStatus() {
+  try {
+    const v = JSON.parse(localStorage.getItem(LAST_STATUS_KEY) || 'null');
+    if (v && state.creds && v.login === state.creds.login && v.status) Object.assign(state.status, v.status);
+  } catch { /* e'tiborsiz */ }
+}
+
 function enterMain() {
+  if (!Object.keys(state.status).length) loadLastStatus();
   showView('main');
   $('loginShown').textContent = state.creds.login;
   updateConnPill();
@@ -421,6 +437,7 @@ function logoutLocal(errorText) {
   $('locError').hidden = true;
   renderLocation();
   clearCreds();
+  try { localStorage.removeItem(LAST_STATUS_KEY); } catch { /* e'tiborsiz */ }
   closeAllPages();
   showView('login');
   const err = $('loginError');
@@ -443,7 +460,7 @@ $('loginForm').addEventListener('submit', (e) => {
   $('loginBtn').disabled = true;
   state.creds = { login, password, id };
   saveCreds(state.creds);
-  state.reconnectDelay = 2000;
+  state.reconnectDelay = 0;
   if (state.ws) { state.manualClose = true; state.ws.close(); state.ws = null; }
   enterMain();
   connect();
@@ -909,9 +926,17 @@ $('ringTest').addEventListener('click', () => startRing('Sinov: signal shunday c
 
 // iOS fonda WebSocket'ni uzadi - ilovaga qaytganda darhol qayta ulanamiz.
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') stopRing(false);
+  if (document.visibilityState === 'hidden') { stopRing(false); state.hiddenAt = Date.now(); }
   if (document.visibilityState === 'visible' && state.creds) {
-    state.reconnectDelay = 2000;
+    state.reconnectDelay = 0;
+    const longHidden = state.hiddenAt && Date.now() - state.hiddenAt > 3000;
+    const alive = state.ws && state.ws.readyState === WebSocket.OPEN && state.authed;
+    if (state.ws && (!alive || longHidden)) {
+      const old = state.ws;
+      state.ws = null;
+      state.authed = false;
+      try { old.close(); } catch { /* e'tiborsiz */ }
+    }
     if (!state.ws) connect();
     else send({ type: 'cmd', cmd: 'RequestStatus' });
   }
