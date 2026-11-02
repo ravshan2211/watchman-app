@@ -519,7 +519,7 @@ function openPage(name) {
   pageStack.push(name);
   el.hidden = false;
   el.scrollTop = 0;
-  if (name === 'history') send({ type: 'cmd', cmd: 'GetHistory' });
+  if (name === 'history') send({ type: 'cmd', cmd: 'GetHistory', limit: 6000 });
   if (name === 'push') refreshPushUi();
   if (name === 'timer') fillTimerForm();
   if (name === 'general') renderWifiNow();
@@ -536,7 +536,7 @@ function closeAllPages() {
 $('menuBtn').addEventListener('click', () => openPage('menu'));
 document.querySelectorAll('[data-page]').forEach((b) => b.addEventListener('click', () => openPage(b.dataset.page)));
 document.querySelectorAll('[data-back]').forEach((b) => b.addEventListener('click', closePage));
-$('historyRefresh').addEventListener('click', () => send({ type: 'cmd', cmd: 'GetHistory' }));
+$('historyRefresh').addEventListener('click', () => send({ type: 'cmd', cmd: 'GetHistory', limit: 6000 }));
 
 // Tungi rejim (Android'dagi "Световой режим") - shu telefonda eslab qolinadi.
 const THEME_KEY = 'watchman.theme';
