@@ -138,10 +138,12 @@ function renderStatus() {
   $('speedCap').hidden = !hasSpeed;
   $('speedVal').hidden = !hasSpeed;
   if (hasSpeed) setVal('speedVal', String(s.speedKmh), s.speedKmh > 0 && !engineOn);
-  const hasFuel = typeof s.fuelPct === 'number';
+  // Eski firmware faqat foiz yuboradi (fuelPct) - yangilanguncha shuni ko'rsatamiz.
+  const hasLitres = typeof s.fuelL === 'number';
+  const hasFuel = hasLitres || typeof s.fuelPct === 'number';
   $('fuelCap').hidden = !hasFuel;
   $('fuelVal').hidden = !hasFuel;
-  if (hasFuel) setVal('fuelVal', s.fuelPct + '%', s.fuelPct <= 10);
+  if (hasFuel) setVal('fuelVal', hasLitres ? s.fuelL + ' L' : s.fuelPct + '%', hasLitres ? s.fuelL <= 5 : s.fuelPct <= 10);
   setVal('batVal', s.akbQuvvati ? s.akbQuvvati + 'V' : '-', s.akbQuvvati && parseFloat(s.akbQuvvati) < 11.8);
   setVal('accVal', s.accOn === 'ACC_HIGH' ? 'HIGH' : s.accOn === undefined && s.mator === undefined ? '-' : engineOn ? 'ON' : 'OFF');
 
