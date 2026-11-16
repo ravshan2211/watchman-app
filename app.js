@@ -151,7 +151,8 @@ function renderStatus() {
   if (engineOn && typeof s.autoStartRemainingSec === 'number' && s.autoStartRemainingSec > 0) {
     const m = Math.floor(s.autoStartRemainingSec / 60);
     const sec = String(s.autoStartRemainingSec % 60).padStart(2, '0');
-    cd.textContent = m + ':' + sec;
+    // Harorat rejimida: maqsad harorati va xavfsizlik vaqti birga.
+    cd.textContent = (typeof s.autoStartTempTarget === 'number' ? s.autoStartTempTarget + '°C gacha · ' : '') + m + ':' + sec;
     cd.hidden = false;
   } else {
     cd.hidden = true;
@@ -528,6 +529,7 @@ function openPage(name) {
   if (name === 'history') send({ type: 'cmd', cmd: 'GetHistory', limit: 6000 });
   if (name === 'push') refreshPushUi();
   if (name === 'timer') fillTimerForm();
+  if (name === 'autotemp') fillAutoTempForm();
   if (name === 'general') renderWifiNow();
 }
 function closePage() {
@@ -639,6 +641,25 @@ $('timerForm').addEventListener('submit', (e) => {
   if (!(autoStartMin === 0 || (autoStartMin >= 5 && autoStartMin <= 30))) { err("Avtozapusk: 0 yoki 5 dan 30 daqiqagacha"); return; }
   $('timerError').hidden = true;
   if (send({ type: 'cmd', cmd: 'SetTimers', aux1Ms, aux2Ms, aux3Ms, lockMs, autoStartMin })) toast('Saqlandi');
+  else toast("Server bilan aloqa yo'q", true);
+});
+
+// ---------------- Avtozapusk -> TEMP (buyruq SetAutoTemp) ----------------
+function fillAutoTempForm() {
+  const s = state.status;
+  const supported = typeof s.tAutoTempC === 'number';
+  $('autoTempOn').checked = !!s.tAutoTempOn;
+  $('autoTempC').value = supported ? String(s.tAutoTempC) : '80';
+  $('autoTempNote').hidden = supported || !state.statusAt;
+  $('autoTempError').hidden = true;
+}
+$('autoTempForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const err = (t) => { $('autoTempError').textContent = t; $('autoTempError').hidden = false; };
+  const tempC = Number($('autoTempC').value.trim());
+  if (!Number.isInteger(tempC) || tempC < 60 || tempC > 99) { err('Haroratni 60 dan 99 gacha kiriting'); return; }
+  $('autoTempError').hidden = true;
+  if (send({ type: 'cmd', cmd: 'SetAutoTemp', tempOn: $('autoTempOn').checked, tempC })) toast('Saqlandi');
   else toast("Server bilan aloqa yo'q", true);
 });
 

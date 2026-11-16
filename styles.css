@@ -435,3 +435,8 @@ button { font: inherit; }
 .dev-remove p { margin: 0 0 8px; }
 .dev-remove label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
 .dev-remove input { width: 100%; font-size: 17px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
+
+/* Avtozapusk: hali tayyor bo'lmagan bo'limlar */
+.menu-item:disabled { opacity: 0.5; cursor: default; }
+.menu-item small { font-size: 14px; font-weight: 400; }
+#page-autotemp .form-page { padding: 0; }

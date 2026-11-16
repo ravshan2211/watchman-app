@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="styles.css?v=17">
+<link rel="stylesheet" href="styles.css?v=18">
 </head>
 <body>
 
@@ -106,6 +106,7 @@
       <label class="switch-row"><span>Tungi rejim</span><input id="darkToggle" type="checkbox" role="switch"><i></i></label>
       <div class="menu-list">
         <button class="menu-item" data-page="timer">Taymer <span>›</span></button>
+        <button class="menu-item" data-page="autostart">Avtozapusk <span>›</span></button>
         <button class="menu-item" data-page="history">Komandalar <span>›</span></button>
         <button class="menu-item" data-page="general">Sozlamalar <span>›</span></button>
         <button class="menu-item" data-page="location">Joylashuv <span>›</span></button>
@@ -164,6 +165,34 @@
       <input id="tAuto" inputmode="numeric" autocomplete="off">
       <p id="timerError" class="form-error" role="alert" hidden></p>
       <button class="wide-btn" type="submit">Saqlash</button>
+    </form>
+  </section>
+
+  <!-- Avtozapusk: TEMP / COOL / HEAT -->
+  <section id="page-autostart" class="page" hidden>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">Avtozapusk</div></header>
+    <div class="page-body">
+      <div class="menu-list">
+        <button class="menu-item" data-page="autotemp">TEMP <span>›</span></button>
+        <button class="menu-item" disabled>COOL <small>tez orada</small></button>
+        <button class="menu-item" disabled>HEAT <small>tez orada</small></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Avtozapusk -> TEMP: harorat bo'yicha o'chirish (buyruq SetAutoTemp) -->
+  <section id="page-autotemp" class="page" hidden>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">TEMP</div></header>
+    <form id="autoTempForm" class="page-body" novalidate>
+      <label class="switch-row"><span>Harorat bo'yicha o'chirish</span><input id="autoTempOn" type="checkbox" role="switch"><i></i></label>
+      <div class="form-page">
+        <label for="autoTempC">Harorat (°C, 60 - 99)</label>
+        <input id="autoTempC" inputmode="numeric" autocomplete="off">
+        <p class="sec-hint">Yoqilgan bo'lsa, telefondan zavod qilingan dvigatel vaqt bo'yicha emas, shu haroratga yetganda o'chadi va telefonga xabar keladi. Xavfsizlik uchun dvigatel ko'pi bilan 20 daqiqa ishlaydi.</p>
+        <p id="autoTempNote" class="sec-hint" hidden>Mashinadagi dastur hali bu funksiyani qo'llamaydi - u yangilangach ishlaydi.</p>
+        <p id="autoTempError" class="form-error" role="alert" hidden></p>
+        <button class="wide-btn" type="submit">Saqlash</button>
+      </div>
     </form>
   </section>
 
@@ -266,6 +295,6 @@
   </div>
 </div>
 
-<script src="app.js?v=17"></script>
+<script src="app.js?v=18"></script>
 </body>
 </html>
