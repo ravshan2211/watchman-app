@@ -168,9 +168,9 @@ function setVal(id, text, isAlert) {
 function fmtTime(ts) {
   const d = new Date(ts);
   const now = new Date();
-  const hm = d.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' });
+  const hm = d.toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
   if (d.toDateString() === now.toDateString()) return hm;
-  return d.toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit' }) + ' ' + hm;
+  return d.toLocaleDateString(locale(), { day: '2-digit', month: '2-digit' }) + ' ' + hm;
 }
 
 function fmtHistTime(ts) {
@@ -183,7 +183,7 @@ function renderAlerts() {
   const ul = $('alertList');
   ul.textContent = '';
   if (!state.alerts.length) {
-    const li = document.createElement('li'); li.className = 'muted'; li.textContent = "Hozircha yo'q"; ul.appendChild(li);
+    const li = document.createElement('li'); li.className = 'muted'; li.textContent = t('noneYet'); ul.appendChild(li);
     return;
   }
   for (const a of state.alerts.slice(0, 5)) {
@@ -198,22 +198,22 @@ function renderAlerts() {
 
 // ---------------- Joylashuv ----------------
 const LOC_ERRORS = {
-  not_found: "Atrofdagi Wi-Fi tarmoqlar bazada topilmadi - bu joyda aniqlab bo'lmadi.",
-  few_networks: "Mashina atrofida Wi-Fi tarmoq topilmadi.",
-  too_soon: "Biroz kuting va qayta urinib ko'ring.",
-  timeout: "Mashinadan javob kelmadi.",
+  not_found: 'locNotFound',
+  few_networks: 'locFew',
+  too_soon: 'locTooSoon',
+  timeout: 'locTimeout',
 };
 
 function renderLocation() {
   const loc = state.location;
   if (!loc) {
-    $('locText').textContent = 'Hali aniqlanmagan';
+    $('locText').textContent = t('locNone');
     $('locMapWrap').hidden = true;
     $('locLinks').hidden = true;
     return;
   }
-  const acc = loc.accuracy ? `±${loc.accuracy} m aniqlik` : '';
-  $('locText').textContent = [fmtTime(loc.ts) + ' da aniqlangan', acc].filter(Boolean).join(' · ');
+  const acc = loc.accuracy ? t('locAcc', loc.accuracy) : '';
+  $('locText').textContent = [t('locAt', fmtTime(loc.ts)), acc].filter(Boolean).join(' · ');
   const lat = loc.lat.toFixed(6);
   const lon = loc.lon.toFixed(6);
   // Ko'rinadigan maydon aniqlikka qarab (kamida ~300 m).
@@ -236,7 +236,7 @@ function setLocPending(on) {
     showLocError('timeout');
   }, 30000) : null;
   if (on) {
-    $('locError').textContent = "Aniqlanmoqda… (10–20 soniya)";
+    $('locError').textContent = t('locPending');
     $('locError').hidden = false;
   }
   updateConnPill();
@@ -244,20 +244,20 @@ function setLocPending(on) {
 
 function showLocError(reason) {
   setLocPending(false);
-  $('locError').textContent = LOC_ERRORS[reason] || "Joyni aniqlab bo'lmadi.";
+  $('locError').textContent = t(LOC_ERRORS[reason] || 'locFail');
   $('locError').hidden = false;
 }
 
 $('locRefresh').addEventListener('click', () => {
   if (send({ type: 'cmd', cmd: 'RequestLocation' })) setLocPending(true);
-  else toast("Server bilan aloqa yo'q", true);
+  else toast(t('noServer'), true);
 });
 
 function renderHistory(events) {
   const ul = $('historyList');
   ul.textContent = '';
   if (!events || !events.length) {
-    const li = document.createElement('li'); li.className = 'muted'; li.textContent = "Tarix bo'sh"; ul.appendChild(li);
+    const li = document.createElement('li'); li.className = 'muted'; li.textContent = t('historyEmpty'); ul.appendChild(li);
     return;
   }
   for (const e of events) {
@@ -402,7 +402,7 @@ function handleMessage(msg) {
       onMasterPasswordResult(msg);
       break;
     case 'push_subscribe_result':
-      refreshPushUi(msg.ok ? 'Yoqilgan' : "Serverda saqlanmadi");
+      refreshPushUi(msg.ok ? t('pushOnShort') : t('pushNotSaved'));
       break;
     default:
       break;
@@ -474,7 +474,7 @@ $('loginForm').addEventListener('submit', (e) => {
 });
 
 $('logoutBtn').addEventListener('click', async () => {
-  const ok = await askConfirm('Hisobdan chiqish? Bu telefonga ogohlantirishlar kelmay qoladi.');
+  const ok = await askConfirm(t('logoutAsk'));
   if (!ok) return;
   let endpoint = null;
   try {
@@ -498,7 +498,7 @@ document.addEventListener('click', async (e) => {
     toast('Yuborildi: ' + (btn.getAttribute('aria-label') || btn.textContent).replace(/\s+/g, ' ').trim());
     if (navigator.vibrate) navigator.vibrate(30);
   } else {
-    toast("Server bilan aloqa yo'q", true);
+    toast(t('noServer'), true);
   }
 });
 
@@ -611,7 +611,7 @@ document.querySelectorAll('[data-aux-pick]').forEach((b) => b.addEventListener('
     });
     list.appendChild(item);
   }
-  $('auxPickerTitle').textContent = 'AUX ' + auxPickSlot + ': funksiyani tanlang';
+  $('auxPickerTitle').textContent = t('auxPickN', auxPickSlot);
   $('auxPicker').hidden = false;
 }));
 $('auxPickerClose').addEventListener('click', () => { $('auxPicker').hidden = true; });
@@ -633,18 +633,18 @@ $('timerForm').addEventListener('submit', (e) => {
   const err = (t) => { $('timerError').textContent = t; $('timerError').hidden = false; };
   const secToMs = (id, name) => {
     const v = parseFloat($(id).value.replace(',', '.'));
-    if (!(v >= 0.1 && v <= 30)) { err(name + ': 0.1 dan 30 soniyagacha kiriting'); return null; }
+    if (!(v >= 0.1 && v <= 30)) { err(t('errSeconds', name)); return null; }
     return Math.round(v * 1000);
   };
   const aux1Ms = secToMs('tAux1', 'AUX 1'); if (aux1Ms === null) return;
   const aux2Ms = secToMs('tAux2', 'AUX 2'); if (aux2Ms === null) return;
   const aux3Ms = secToMs('tAux3', 'AUX 3'); if (aux3Ms === null) return;
-  const lockMs = secToMs('tLock', 'Yopish'); if (lockMs === null) return;
+  const lockMs = secToMs('tLock', t('lockWord')); if (lockMs === null) return;
   const autoStartMin = parseInt($('tAuto').value, 10);
-  if (!(autoStartMin === 0 || (autoStartMin >= 5 && autoStartMin <= 30))) { err("Avtozapusk: 0 yoki 5 dan 30 daqiqagacha"); return; }
+  if (!(autoStartMin === 0 || (autoStartMin >= 5 && autoStartMin <= 30))) { err(t('errAutoMin')); return; }
   $('timerError').hidden = true;
-  if (send({ type: 'cmd', cmd: 'SetTimers', aux1Ms, aux2Ms, aux3Ms, lockMs, autoStartMin })) toast('Saqlandi');
-  else toast("Server bilan aloqa yo'q", true);
+  if (send({ type: 'cmd', cmd: 'SetTimers', aux1Ms, aux2Ms, aux3Ms, lockMs, autoStartMin })) toast(t('saved'));
+  else toast(t('noServer'), true);
 });
 
 // ---------------- Avtozapusk -> TEMP (buyruq SetAutoTemp) ----------------
@@ -660,10 +660,10 @@ $('autoTempForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const err = (t) => { $('autoTempError').textContent = t; $('autoTempError').hidden = false; };
   const tempC = Number($('autoTempC').value.trim());
-  if (!Number.isInteger(tempC) || tempC < 60 || tempC > 99) { err('Haroratni 60 dan 99 gacha kiriting'); return; }
+  if (!Number.isInteger(tempC) || tempC < 60 || tempC > 99) { err(t('tempErr')); return; }
   $('autoTempError').hidden = true;
-  if (send({ type: 'cmd', cmd: 'SetAutoTemp', tempOn: $('autoTempOn').checked, tempC })) toast('Saqlandi');
-  else toast("Server bilan aloqa yo'q", true);
+  if (send({ type: 'cmd', cmd: 'SetAutoTemp', tempOn: $('autoTempOn').checked, tempC })) toast(t('saved'));
+  else toast(t('noServer'), true);
 });
 
 // ---------------- Avtozapusk -> COOL / HEAT (buyruq SetClimate) ----------------
@@ -682,8 +682,8 @@ document.querySelectorAll('[data-climate]').forEach((form) => form.addEventListe
   const msg = { type: 'cmd', cmd: 'SetClimate' };
   msg[key + 'On'] = $(key + 'On').checked;
   msg[key + 'Btn'] = $(key + 'Btn').checked;
-  if (send(msg)) toast('Saqlandi');
-  else toast("Server bilan aloqa yo'q", true);
+  if (send(msg)) toast(t('saved'));
+  else toast(t('noServer'), true);
 }));
 
 // ---------------- Avtozapusk -> SEATS (buyruq SetSeats) ----------------
@@ -698,34 +698,54 @@ $('autoseatsForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const msg = { type: 'cmd', cmd: 'SetSeats', seatBtn: $('seatBtn').checked };
   for (let n = 1; n <= 4; n++) msg['seat' + n] = $('seat' + n).checked;
-  if (send(msg)) toast('Saqlandi');
-  else toast("Server bilan aloqa yo'q", true);
+  if (send(msg)) toast(t('saved'));
+  else toast(t('noServer'), true);
 });
+
+// ---------------- Language ----------------
+function renderLangPage() {
+  document.querySelectorAll('[data-lang]').forEach((b) => {
+    const on = b.dataset.lang === currentLang;
+    b.querySelector('span').textContent = on ? '✓' : '';
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+document.querySelectorAll('[data-lang]').forEach((b) => b.addEventListener('click', () => {
+  setLang(b.dataset.lang);
+  renderLangPage();
+  // JS yozgan matnlar ham yangi tilda qayta chiziladi.
+  renderAlerts();
+  renderLocation();
+  renderWifiNow();
+  refreshPushUi();
+}));
+applyI18n();
+renderLangPage();
 
 // ---------------- Sozlamalar: WiFi (buyruq SetWifi) ----------------
 function renderWifiNow() {
   const s = state.status;
   if (!s.wifiSsid) {
-    $('wifiNow').textContent = "Hozir ulangan: noma'lum (qurilma hali ma'lumot yubormagan)";
+    $('wifiNow').textContent = t('wifiUnknown');
     return;
   }
-  let text = 'Hozir ulangan: ' + s.wifiSsid;
+  let text = t('wifiNow', s.wifiSsid);
   if (typeof s.wifiRssi === 'number') {
-    const q = s.wifiRssi >= -60 ? "a'lo" : s.wifiRssi >= -70 ? 'yaxshi' : s.wifiRssi >= -80 ? "o'rtacha" : 'zaif';
-    text += '\n(signal: ' + q + ', ' + s.wifiRssi + ' dBm)';
+    const q = t(s.wifiRssi >= -60 ? 'sigExcellent' : s.wifiRssi >= -70 ? 'sigGood' : s.wifiRssi >= -80 ? 'sigFair' : 'sigWeak');
+    text += '\n' + t('wifiSignal', q, s.wifiRssi);
   }
   $('wifiNow').textContent = text;
 }
 $('wifiForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const ssid = $('wifiSsid').value.trim();
-  if (!ssid) { toast("Tarmoq nomi bo'sh - o'zgartirilmadi"); return; }
+  if (!ssid) { toast(t('wifiEmpty')); return; }
   if (!(await askConfirm('ESP32 "' + ssid + '" tarmog\'iga ulanadi. Parol noto\'g\'ri bo\'lsa, eski tarmoqqa qaytadi. Davom etilsinmi?'))) return;
   if (send({ type: 'cmd', cmd: 'SetWifi', wifiSsid: ssid, wifiPassword: $('wifiPass').value })) {
-    toast('Yuborildi - qurilma yangi tarmoqqa ulanmoqda');
+    toast(t('wifiSent'));
     $('wifiPass').value = '';
   } else {
-    toast("Server bilan aloqa yo'q", true);
+    toast(t('noServer'), true);
   }
 });
 
@@ -736,11 +756,11 @@ $('idForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const err = (t) => { $('idError').textContent = t; $('idError').hidden = false; };
   const oldId = $('idOld').value, newId = $('idNew').value, newId2 = $('idNew2').value;
-  if (!oldId || !newId) { err('Eski va yangi ID ni kiriting'); return; }
-  if (newId !== newId2) { err('ID lar mos kelmadi'); return; }
+  if (!oldId || !newId) { err(t('idErrEmpty')); return; }
+  if (newId !== newId2) { err(t('idErrMatch')); return; }
   $('idError').hidden = true;
   if (!send({ type: 'cmd', cmd: 'SetMasterPassword', oldPassword: oldId, newPassword: newId })) {
-    toast("Server bilan aloqa yo'q", true);
+    toast(t('noServer'), true);
     return;
   }
   pendingNewId = newId;
@@ -748,7 +768,7 @@ $('idForm').addEventListener('submit', (e) => {
   idTimer = setTimeout(() => {
     if (pendingNewId === null) return;
     pendingNewId = null;
-    err('Javob kelmadi. Biroz kutib, qayta urinib ko\'ring.');
+    err(t('idNoReply'));
   }, 15000);
 });
 function onMasterPasswordResult(msg) {
@@ -759,16 +779,16 @@ function onMasterPasswordResult(msg) {
     state.creds.id = pendingNewId;
     saveCreds(state.creds);
     ['idOld', 'idNew', 'idNew2'].forEach((id) => { $(id).value = ''; });
-    toast("ID o'zgartirildi");
+    toast(t('idChanged'));
   } else {
     const reasons = {
-      demo: "Demo hisobda ID ni o'zgartirib bo'lmaydi",
-      device_offline: "Mashina oflayn - ID o'zgartirilmadi. Mashina internetga ulanganda qayta urinib ko'ring",
-      device_timeout: "Mashina javob bermadi - ID o'zgartirilmadi. Qayta urinib ko'ring",
-      device_rejected: "Mashina ID ni qabul qilmadi - ID o'zgartirilmadi",
-      busy: "ID o'zgartirilmoqda, biroz kuting",
+      demo: 'idDemo',
+      device_offline: 'idOffline',
+      device_timeout: 'idTimeout',
+      device_rejected: 'idRejected',
+      busy: 'idBusy',
     };
-    $('idError').textContent = reasons[msg.reason] || "Eski ID noto'g'ri";
+    $('idError').textContent = t(reasons[msg.reason] || 'idWrongOld');
     $('idError').hidden = false;
   }
   pendingNewId = null;
@@ -777,8 +797,8 @@ function onMasterPasswordResult(msg) {
 // ---------------- Sozlamalar: Qurilmalar (devices_list / device_remove) ----------------
 let devRemoveTarget = null;
 $('devicesBtn').addEventListener('click', () => {
-  if (!send({ type: 'devices_list' })) { toast("Server bilan aloqa yo'q", true); return; }
-  $('devicesList').innerHTML = '<li class="muted">Yuklanmoqda…</li>';
+  if (!send({ type: 'devices_list' })) { toast(t('noServer'), true); return; }
+  $('devicesList').innerHTML = '<li class="muted">' + t('loading') + '</li>';
   $('devRemoveForm').hidden = true;
   $('devicesBox').hidden = false;
 });
@@ -790,27 +810,27 @@ function renderDevices(items) {
   ul.textContent = '';
   items = Array.isArray(items) ? items : [];
   const online = items.filter((d) => d.online).length;
-  $('devicesTitle').textContent = 'Ulangan qurilmalar: ' + items.length + ' (onlayn: ' + online + ')';
+  $('devicesTitle').textContent = t('devTitleN', items.length, online);
   if (!items.length) {
-    const li = document.createElement('li'); li.className = 'muted'; li.textContent = "Ro'yxat bo'sh"; ul.appendChild(li);
+    const li = document.createElement('li'); li.className = 'muted'; li.textContent = t('devEmpty'); ul.appendChild(li);
     return;
   }
   for (const d of items) {
     const li = document.createElement('li');
     const info = document.createElement('div');
     const name = document.createElement('div'); name.className = 'dev-name';
-    name.textContent = (d.name || 'Noma\'lum telefon') + (d.current ? ' (shu telefon)' : '');
+    name.textContent = (d.name || t('devUnknown')) + (d.current ? t('devThis') : '');
     const sub = document.createElement('div'); sub.className = 'dev-sub';
-    if (d.online) { sub.textContent = 'onlayn'; sub.classList.add('on'); }
-    else sub.textContent = d.lastSeen ? 'oxirgi: ' + fmtTime(d.lastSeen) : 'oflayn';
+    if (d.online) { sub.textContent = t('devOnline'); sub.classList.add('on'); }
+    else sub.textContent = d.lastSeen ? t('devLast', fmtTime(d.lastSeen)) : t('devOffline');
     info.append(name, sub);
     li.appendChild(info);
     if (!d.current) {
       const b = document.createElement('button');
-      b.type = 'button'; b.className = 'btn small-danger'; b.textContent = "O'chirish";
+      b.type = 'button'; b.className = 'btn small-danger'; b.textContent = t('devRemove');
       b.addEventListener('click', () => {
         devRemoveTarget = d.deviceId;
-        $('devRemoveText').textContent = '"' + (d.name || 'Telefon') + '" hisobdan o\'chirilsinmi? Tasdiqlash uchun ID ni kiriting.';
+        $('devRemoveText').textContent = t('devAsk', d.name || t('devPhone'));
         $('devRemoveId').value = '';
         $('devRemoveError').hidden = true;
         $('devRemoveForm').hidden = false;
@@ -824,22 +844,22 @@ function renderDevices(items) {
 $('devRemoveForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const id = $('devRemoveId').value;
-  if (!devRemoveTarget || !id) { $('devRemoveError').textContent = 'ID ni kiriting'; $('devRemoveError').hidden = false; return; }
-  if (!send({ type: 'device_remove', deviceId: devRemoveTarget, masterPassword: id })) toast("Server bilan aloqa yo'q", true);
+  if (!devRemoveTarget || !id) { $('devRemoveError').textContent = t('devEnterId'); $('devRemoveError').hidden = false; return; }
+  if (!send({ type: 'device_remove', deviceId: devRemoveTarget, masterPassword: id })) toast(t('noServer'), true);
 });
 const DEV_REMOVE_ERRORS = {
-  wrong_id: "ID noto'g'ri",
-  self: "Shu telefonni o'chirib bo'lmaydi",
-  too_many_attempts: "Ko'p marta xato kiritildi - 1 daqiqadan keyin urinib ko'ring",
-  not_found: 'Qurilma topilmadi',
+  wrong_id: 'devWrongId',
+  self: 'devSelf',
+  too_many_attempts: 'devTooMany',
+  not_found: 'devNotFound',
 };
 function onDeviceRemoveResult(msg) {
   if (msg.ok) {
-    toast("Qurilma o'chirildi");
+    toast(t('devRemoved'));
     $('devRemoveForm').hidden = true;
     devRemoveTarget = null;
   } else {
-    $('devRemoveError').textContent = DEV_REMOVE_ERRORS[msg.reason] || "O'chirib bo'lmadi";
+    $('devRemoveError').textContent = t(DEV_REMOVE_ERRORS[msg.reason] || 'devFailed');
     $('devRemoveError').hidden = false;
   }
 }
@@ -874,26 +894,26 @@ async function refreshPushUi(note, resend = false) {
   btn.hidden = true;
   if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
     st.textContent = isIos() && !isStandalone()
-      ? "Avval ilovani ekranga qo'shing (Ulashish → \"Ekranga qo'shish\"), keyin shu yerdan yoqing. iOS 16.4 yoki yangisi kerak."
-      : "Bu brauzer push-bildirishnomalarni qo'llamaydi.";
+      ? t('pushAddHome')
+      : t('pushUnsupported');
     return;
   }
   if (!state.pushPublicKey) {
-    st.textContent = 'Server bildirishnomalarni hali qo\'llamaydi yoki ulanish kutilmoqda.';
+    st.textContent = t('pushNoServer');
     return;
   }
   if (Notification.permission === 'denied') {
-    st.textContent = "Bildirishnomalar taqiqlangan. iPhone Sozlamalar → Bildirishnomalar → WATCHMAN dan ruxsat bering.";
+    st.textContent = t('pushDenied');
     return;
   }
   const reg = swReg || await registerSw();
   const sub = reg ? await reg.pushManager.getSubscription() : null;
   if (sub && Notification.permission === 'granted') {
-    st.textContent = note || 'Yoqilgan - ogohlantirishlar ilova yopiq bo\'lsa ham keladi.';
+    st.textContent = note || t('pushOn');
     if (resend) send({ type: 'push_subscribe', subscription: sub.toJSON() });
     return;
   }
-  st.textContent = "O'chiq. Ogohlantirishlar faqat ilova ochiq bo'lganda ko'rinadi.";
+  st.textContent = t('pushOff');
   btn.hidden = false;
 }
 
@@ -903,16 +923,16 @@ $('pushBtn').addEventListener('click', async () => {
     const perm = await Notification.requestPermission();
     if (perm !== 'granted') { refreshPushUi(); return; }
     const reg = swReg || await registerSw();
-    if (!reg) { toast("Bildirishnomani yoqib bo'lmadi", true); return; }
+    if (!reg) { toast(t('pushFailed'), true); return; }
     await navigator.serviceWorker.ready;
     const sub = await reg.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlB64ToUint8Array(state.pushPublicKey),
     });
     send({ type: 'push_subscribe', subscription: sub.toJSON() });
-    $('pushStatus').textContent = 'Saqlanmoqda…';
+    $('pushStatus').textContent = t('pushSaving');
   } catch (err) {
-    toast("Bildirishnomani yoqib bo'lmadi: " + (err && err.message ? err.message : err), true);
+    toast(t('pushFailed') + ': ' + (err && err.message ? err.message : err), true);
     refreshPushUi();
   }
 });
@@ -988,7 +1008,7 @@ function stopRing(hideBox = true) {
   if (hideBox) $('ringBox').hidden = true;
 }
 $('ringStop').addEventListener('click', () => stopRing());
-$('ringTest').addEventListener('click', () => startRing('Sinov: signal shunday chaladi'));
+$('ringTest').addEventListener('click', () => startRing(t('ringTestText')));
 
 // iOS fonda WebSocket'ni uzadi - ilovaga qaytganda darhol qayta ulanamiz.
 document.addEventListener('visibilitychange', () => {

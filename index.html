@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="styles.css?v=21">
+<link rel="stylesheet" href="styles.css?v=22">
 </head>
 <body>
 
@@ -95,7 +95,7 @@
 
   <!-- Menyu (Android'dagi "Sozlamalar" oynasi kabi) -->
   <section id="page-menu" class="page" hidden>
-    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">Sozlamalar</div></header>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga" data-i18n-aria="back">‹</button><div class="tb-title plain" data-i18n="settings">Sozlamalar</div></header>
     <div class="page-body">
       <!-- Android'dagidek: AUX tugmasini bosib ikonkasini tanlash (buyruq o'zgarmaydi). -->
       <div class="aux-card">
@@ -103,47 +103,60 @@
         <button class="round small" data-aux-pick="2" aria-label="AUX 2 ikonkasini tanlash"><span class="mask ico-aux2" data-aux-slot="2"></span></button>
         <button class="round small" data-aux-pick="3" aria-label="AUX 3 ikonkasini tanlash"><span class="mask ico-aux3" data-aux-slot="3"></span></button>
       </div>
-      <label class="switch-row"><span>Tungi rejim</span><input id="darkToggle" type="checkbox" role="switch"><i></i></label>
+      <label class="switch-row"><span data-i18n="darkMode">Tungi rejim</span><input id="darkToggle" type="checkbox" role="switch"><i></i></label>
       <div class="menu-list">
-        <button class="menu-item" data-page="timer">Taymer <span>›</span></button>
-        <button class="menu-item" data-page="autostart">Avtozapusk <span>›</span></button>
-        <button class="menu-item" data-page="history">Komandalar <span>›</span></button>
-        <button class="menu-item" data-page="general">Sozlamalar <span>›</span></button>
-        <button class="menu-item" data-page="location">Joylashuv <span>›</span></button>
-        <button class="menu-item" data-page="push">Bildirishnomalar <span>›</span></button>
-        <button id="logoutBtn" class="menu-item danger">Chiqish</button>
+        <button class="menu-item" data-page="timer" data-i18n="timer">Taymer <span>›</span></button>
+        <button class="menu-item" data-page="autostart" data-i18n="autostart">Avtozapusk <span>›</span></button>
+        <button class="menu-item" data-page="history" data-i18n="history">Komandalar <span>›</span></button>
+        <button class="menu-item" data-page="general" data-i18n="settings">Sozlamalar <span>›</span></button>
+        <button class="menu-item" data-page="location" data-i18n="location">Joylashuv <span>›</span></button>
+        <button class="menu-item" data-page="push" data-i18n="push">Bildirishnomalar <span>›</span></button>
+        <button class="menu-item" data-page="language" data-i18n="language">Language <span>›</span></button>
+        <button id="logoutBtn" class="menu-item danger" data-i18n="logout">Chiqish</button>
       </div>
-      <p class="page-note">Login: <b id="loginShown">—</b> · <a href="https://ravshan2211.github.io/watchman-privacy-new/" target="_blank" rel="noopener">Maxfiylik siyosati</a></p>
+      <p class="page-note">Login: <b id="loginShown">—</b> · <a href="https://ravshan2211.github.io/watchman-privacy-new/" target="_blank" rel="noopener" data-i18n="privacy">Maxfiylik siyosati</a></p>
+    </div>
+  </section>
+
+  <!-- Language: sozlamalar bo'limi tili -->
+  <section id="page-language" class="page" hidden>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga" data-i18n-aria="back">‹</button><div class="tb-title plain" data-i18n="language">Language</div></header>
+    <div class="page-body">
+      <div class="menu-list">
+        <button class="menu-item" data-lang="uz">UZBEK <span></span></button>
+        <button class="menu-item" data-lang="ru">РУССКИЙ <span></span></button>
+        <button class="menu-item" data-lang="en">ENGLISH (USA) <span></span></button>
+      </div>
     </div>
   </section>
 
   <!-- Komandalar (tarix) -->
   <section id="page-history" class="page" hidden>
-    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">Komandalar</div></header>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga" data-i18n-aria="back">‹</button><div class="tb-title plain" data-i18n="history">Komandalar</div></header>
     <div class="page-body">
-      <button id="historyRefresh" class="wide-btn">Yangilash</button>
+      <button id="historyRefresh" class="wide-btn" data-i18n="refresh">Yangilash</button>
       <div class="plain-card">
-        <div class="card-cap">Oxirgi ogohlantirishlar</div>
-        <ul id="alertList" class="list"><li class="muted">Hozircha yo'q</li></ul>
+        <div class="card-cap" data-i18n="lastAlerts">Oxirgi ogohlantirishlar</div>
+        <ul id="alertList" class="list"><li class="muted" data-i18n="noneYet">Hozircha yo'q</li></ul>
       </div>
-      <ul id="historyList" class="hist"><li class="muted">Yuklanmoqda…</li></ul>
+      <ul id="historyList" class="hist"><li class="muted" data-i18n="loading">Yuklanmoqda…</li></ul>
     </div>
   </section>
 
   <!-- Joylashuv -->
   <section id="page-location" class="page" hidden>
-    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">Joylashuv</div></header>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga" data-i18n-aria="back">‹</button><div class="tb-title plain" data-i18n="location">Joylashuv</div></header>
     <div class="page-body">
-      <button id="locRefresh" class="wide-btn">Yangilash</button>
+      <button id="locRefresh" class="wide-btn" data-i18n="refresh">Yangilash</button>
       <div class="plain-card">
-        <p id="locText" class="muted">Hali aniqlanmagan</p>
+        <p id="locText" class="muted" data-i18n="locNone">Hali aniqlanmagan</p>
         <p id="locError" class="muted small" hidden></p>
         <div id="locMapWrap" class="map" hidden>
           <iframe id="locMap" title="Mashina joylashuvi xaritada" loading="lazy" referrerpolicy="no-referrer"></iframe>
         </div>
         <div id="locLinks" class="row" hidden>
-          <a id="locGoogle" class="wide-btn light" target="_blank" rel="noopener">Google xarita</a>
-          <a id="locYandex" class="wide-btn light" target="_blank" rel="noopener">Yandex xarita</a>
+          <a id="locGoogle" class="wide-btn light" target="_blank" rel="noopener" data-i18n="locGoogle">Google xarita</a>
+          <a id="locYandex" class="wide-btn light" target="_blank" rel="noopener" data-i18n="locYandex">Yandex xarita</a>
         </div>
       </div>
     </div>
@@ -151,26 +164,26 @@
 
   <!-- Taymer (Android TimerSettingsFragment) -->
   <section id="page-timer" class="page" hidden>
-    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">Taymer</div></header>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga" data-i18n-aria="back">‹</button><div class="tb-title plain" data-i18n="timer">Taymer</div></header>
     <form id="timerForm" class="page-body form-page" novalidate>
-      <label for="tAux1">AUX 1 vaqti (soniya, 0.1 - 30)</label>
+      <label for="tAux1" data-i18n="timerAux1">AUX 1 vaqti (soniya, 0.1 - 30)</label>
       <input id="tAux1" inputmode="decimal" autocomplete="off">
-      <label for="tAux2">AUX 2 vaqti (soniya, 0.1 - 30)</label>
+      <label for="tAux2" data-i18n="timerAux2">AUX 2 vaqti (soniya, 0.1 - 30)</label>
       <input id="tAux2" inputmode="decimal" autocomplete="off">
-      <label for="tAux3">AUX 3 vaqti (soniya, 0.1 - 30)</label>
+      <label for="tAux3" data-i18n="timerAux3">AUX 3 vaqti (soniya, 0.1 - 30)</label>
       <input id="tAux3" inputmode="decimal" autocomplete="off">
-      <label for="tLock">Yopish (Lock) vaqti (soniya, 0.1 - 30)</label>
+      <label for="tLock" data-i18n="timerLock">Yopish (Lock) vaqti (soniya, 0.1 - 30)</label>
       <input id="tLock" inputmode="decimal" autocomplete="off">
-      <label for="tAuto">Avtozapusk oralig'i (daqiqa, 5 - 30, 0 = o'chirilgan)</label>
+      <label for="tAuto" data-i18n="timerAuto">Avtozapusk oralig'i (daqiqa, 5 - 30, 0 = o'chirilgan)</label>
       <input id="tAuto" inputmode="numeric" autocomplete="off">
       <p id="timerError" class="form-error" role="alert" hidden></p>
-      <button class="wide-btn" type="submit">Saqlash</button>
+      <button class="wide-btn" type="submit" data-i18n="save">Saqlash</button>
     </form>
   </section>
 
   <!-- Avtozapusk: TEMP / COOL / HEAT -->
   <section id="page-autostart" class="page" hidden>
-    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">Avtozapusk</div></header>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga" data-i18n-aria="back">‹</button><div class="tb-title plain" data-i18n="autostart">Avtozapusk</div></header>
     <div class="page-body">
       <div class="menu-list">
         <button class="menu-item" data-page="autotemp">TEMP <span>›</span></button>
@@ -183,102 +196,102 @@
 
   <!-- Avtozapusk -> TEMP: harorat bo'yicha o'chirish (buyruq SetAutoTemp) -->
   <section id="page-autotemp" class="page" hidden>
-    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">TEMP</div></header>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga" data-i18n-aria="back">‹</button><div class="tb-title plain">TEMP</div></header>
     <form id="autoTempForm" class="page-body" novalidate>
-      <label class="switch-row"><span>Harorat bo'yicha o'chirish</span><input id="autoTempOn" type="checkbox" role="switch"><i></i></label>
+      <label class="switch-row"><span data-i18n="tempByTemp">Harorat bo'yicha o'chirish</span><input id="autoTempOn" type="checkbox" role="switch"><i></i></label>
       <div class="form-page">
-        <label for="autoTempC">Harorat (°C, 60 - 99)</label>
+        <label for="autoTempC" data-i18n="tempLabel">Harorat (°C, 60 - 99)</label>
         <input id="autoTempC" inputmode="numeric" autocomplete="off">
-        <p id="autoTempNote" class="sec-hint" hidden>Mashinadagi dastur hali bu funksiyani qo'llamaydi - u yangilangach ishlaydi.</p>
+        <p id="autoTempNote" class="sec-hint" hidden data-i18n="noFw">Mashinadagi dastur hali bu funksiyani qo'llamaydi - u yangilangach ishlaydi.</p>
         <p id="autoTempError" class="form-error" role="alert" hidden></p>
-        <button class="wide-btn" type="submit">Saqlash</button>
+        <button class="wide-btn" type="submit" data-i18n="save">Saqlash</button>
       </div>
     </form>
   </section>
 
   <!-- Avtozapusk -> COOL (buyruq SetClimate) -->
   <section id="page-autocool" class="page" hidden>
-    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">COOL</div></header>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga" data-i18n-aria="back">‹</button><div class="tb-title plain">COOL</div></header>
     <form id="autocoolForm" class="page-body" novalidate data-climate="cool">
       <label class="switch-row"><span>COOL</span><input id="coolOn" type="checkbox" role="switch"><i></i></label>
       <label class="switch-row"><span>KNOPKA</span><input id="coolBtn" type="checkbox" role="switch"><i></i></label>
-      <p id="coolNoPin" class="sec-hint" hidden>Bu rele hali ulanmagan - usta uni ESP32 ga ulab, pinini belgilashi kerak.</p>
-      <p id="coolNoFw" class="sec-hint" hidden>Mashinadagi dastur hali bu funksiyani qo'llamaydi - u yangilangach ishlaydi.</p>
-      <button class="wide-btn" type="submit">Saqlash</button>
+      <p id="coolNoPin" class="sec-hint" hidden data-i18n="noPin">Bu rele hali ulanmagan - usta uni ESP32 ga ulab, pinini belgilashi kerak.</p>
+      <p id="coolNoFw" class="sec-hint" hidden data-i18n="noFw">Mashinadagi dastur hali bu funksiyani qo'llamaydi - u yangilangach ishlaydi.</p>
+      <button class="wide-btn" type="submit" data-i18n="save">Saqlash</button>
     </form>
   </section>
 
   <!-- Avtozapusk -> HEAT (buyruq SetClimate) -->
   <section id="page-autoheat" class="page" hidden>
-    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">HEAT</div></header>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga" data-i18n-aria="back">‹</button><div class="tb-title plain">HEAT</div></header>
     <form id="autoheatForm" class="page-body" novalidate data-climate="heat">
       <label class="switch-row"><span>HEAT</span><input id="heatOn" type="checkbox" role="switch"><i></i></label>
       <label class="switch-row"><span>KNOPKA</span><input id="heatBtn" type="checkbox" role="switch"><i></i></label>
-      <p id="heatNoPin" class="sec-hint" hidden>Bu rele hali ulanmagan - usta uni ESP32 ga ulab, pinini belgilashi kerak.</p>
-      <p id="heatNoFw" class="sec-hint" hidden>Mashinadagi dastur hali bu funksiyani qo'llamaydi - u yangilangach ishlaydi.</p>
-      <button class="wide-btn" type="submit">Saqlash</button>
+      <p id="heatNoPin" class="sec-hint" hidden data-i18n="noPin">Bu rele hali ulanmagan - usta uni ESP32 ga ulab, pinini belgilashi kerak.</p>
+      <p id="heatNoFw" class="sec-hint" hidden data-i18n="noFw">Mashinadagi dastur hali bu funksiyani qo'llamaydi - u yangilangach ishlaydi.</p>
+      <button class="wide-btn" type="submit" data-i18n="save">Saqlash</button>
     </form>
   </section>
 
   <!-- Avtozapusk -> SEATS (buyruq SetSeats) -->
   <section id="page-autoseats" class="page" hidden>
-    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">SEATS</div></header>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga" data-i18n-aria="back">‹</button><div class="tb-title plain">SEATS</div></header>
     <form id="autoseatsForm" class="page-body" novalidate>
       <label class="switch-row"><span>BUTTON</span><input id="seatBtn" type="checkbox" role="switch"><i></i></label>
       <label class="switch-row"><span>SEATS 1</span><input id="seat1" type="checkbox" role="switch"><i></i></label>
       <label class="switch-row"><span>SEATS 2</span><input id="seat2" type="checkbox" role="switch"><i></i></label>
       <label class="switch-row"><span>SEATS 3</span><input id="seat3" type="checkbox" role="switch"><i></i></label>
       <label class="switch-row"><span>SEATS 4</span><input id="seat4" type="checkbox" role="switch"><i></i></label>
-      <p id="seatsNoFw" class="sec-hint" hidden>Mashinadagi dastur hali bu funksiyani qo'llamaydi - u yangilangach ishlaydi.</p>
-      <button class="wide-btn" type="submit">Saqlash</button>
+      <p id="seatsNoFw" class="sec-hint" hidden data-i18n="noFw">Mashinadagi dastur hali bu funksiyani qo'llamaydi - u yangilangach ishlaydi.</p>
+      <button class="wide-btn" type="submit" data-i18n="save">Saqlash</button>
     </form>
   </section>
 
   <!-- Sozlamalar (Android GeneralSettingsFragment): Qurilmalar, WiFi, ID -->
   <section id="page-general" class="page" hidden>
-    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">Sozlamalar</div></header>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga" data-i18n-aria="back">‹</button><div class="tb-title plain" data-i18n="settings">Sozlamalar</div></header>
     <div class="page-body form-page">
-      <h2 class="sec-title">Qurilmalar</h2>
-      <p class="sec-hint">Shu hisobga ulangan telefonlar. Ortiqchasini ID bilan o'chirish mumkin.</p>
-      <button id="devicesBtn" class="wide-btn">Qurilmalar</button>
+      <h2 class="sec-title" data-i18n="devices">Qurilmalar</h2>
+      <p class="sec-hint" data-i18n="devicesHint">Shu hisobga ulangan telefonlar. Ortiqchasini ID bilan o'chirish mumkin.</p>
+      <button id="devicesBtn" class="wide-btn" data-i18n="devices">Qurilmalar</button>
 
       <h2 class="sec-title">WiFi</h2>
-      <p id="wifiNow" class="info-box">Hozir ulangan: noma'lum (qurilma hali ma'lumot yubormagan)</p>
+      <p id="wifiNow" class="info-box" data-i18n="wifiUnknown">Hozir ulangan: noma'lum (qurilma hali ma'lumot yubormagan)</p>
       <form id="wifiForm" novalidate>
-        <label for="wifiSsid">Tarmoq nomi (SSID) - o'zgartirmoqchi bo'lmasangiz bo'sh qoldiring</label>
+        <label for="wifiSsid" data-i18n="wifiSsidLabel">Tarmoq nomi (SSID) - o'zgartirmoqchi bo'lmasangiz bo'sh qoldiring</label>
         <input id="wifiSsid" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <label for="wifiPass">WiFi paroli</label>
+        <label for="wifiPass" data-i18n="wifiPassLabel">WiFi paroli</label>
         <input id="wifiPass" type="password" autocomplete="off">
-        <button class="wide-btn" type="submit">Saqlash</button>
+        <button class="wide-btn" type="submit" data-i18n="save">Saqlash</button>
       </form>
 
-      <h2 class="sec-title">ID ni o'zgartirish</h2>
+      <h2 class="sec-title" data-i18n="idTitle">ID ni o'zgartirish</h2>
       <form id="idForm" novalidate>
-        <label for="idOld">Eski ID</label>
+        <label for="idOld" data-i18n="idOld">Eski ID</label>
         <input id="idOld" type="password" autocomplete="off">
-        <label for="idNew">Yangi ID</label>
+        <label for="idNew" data-i18n="idNew">Yangi ID</label>
         <input id="idNew" type="password" autocomplete="new-password">
-        <label for="idNew2">Yangi ID ni tasdiqlang</label>
+        <label for="idNew2" data-i18n="idNew2">Yangi ID ni tasdiqlang</label>
         <input id="idNew2" type="password" autocomplete="new-password">
         <p id="idError" class="form-error" role="alert" hidden></p>
-        <button class="wide-btn" type="submit">ID ni o'zgartirish</button>
+        <button class="wide-btn" type="submit" data-i18n="idTitle">ID ni o'zgartirish</button>
       </form>
     </div>
   </section>
 
   <!-- Bildirishnomalar -->
   <section id="page-push" class="page" hidden>
-    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">Bildirishnomalar</div></header>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga" data-i18n-aria="back">‹</button><div class="tb-title plain" data-i18n="push">Bildirishnomalar</div></header>
     <div class="page-body">
       <div class="plain-card">
-        <div class="card-cap">Bildirishnomalar</div>
+        <div class="card-cap" data-i18n="push">Bildirishnomalar</div>
         <p id="pushStatus" class="muted">—</p>
-        <button id="pushBtn" class="wide-btn" hidden>Bildirishnomalarni yoqish</button>
+        <button id="pushBtn" class="wide-btn" hidden data-i18n="pushEnable">Bildirishnomalarni yoqish</button>
       </div>
       <div class="plain-card">
-        <div class="card-cap">Signal ovozi</div>
-        <p class="muted">Ilova ochiq turganda ogohlantirish kelsa, telefon qo'ng'irog'idek jiringlaydi (1 daqiqagacha yoki "To'xtatish" bosilguncha).</p>
-        <button id="ringTest" class="wide-btn">Signalni sinash</button>
+        <div class="card-cap" data-i18n="ringSound">Signal ovozi</div>
+        <p class="muted" data-i18n="ringHint">Ilova ochiq turganda ogohlantirish kelsa, telefon qo'ng'irog'idek jiringlaydi (1 daqiqagacha yoki "To'xtatish" bosilguncha).</p>
+        <button id="ringTest" class="wide-btn" data-i18n="ringTest">Signalni sinash</button>
       </div>
     </div>
   </section>
@@ -289,8 +302,8 @@
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmText">
     <p id="confirmText"></p>
     <div class="row">
-      <button id="confirmNo" class="btn ghost">Bekor qilish</button>
-      <button id="confirmYes" class="btn primary">Ha</button>
+      <button id="confirmNo" class="btn ghost" data-i18n="cancel">Bekor qilish</button>
+      <button id="confirmYes" class="btn primary" data-i18n="yes">Ha</button>
     </div>
   </div>
 </div>
@@ -298,28 +311,28 @@
 <!-- AUX ikonkasini tanlash (Android "Funksiyani tanlang") -->
 <div id="auxPicker" class="modal" hidden>
   <div class="modal-card sheet" role="dialog" aria-modal="true" aria-labelledby="auxPickerTitle">
-    <h3 id="auxPickerTitle">Funksiyani tanlang</h3>
+    <h3 id="auxPickerTitle" data-i18n="auxPick">Funksiyani tanlang</h3>
     <div id="auxPickerList" class="pick-grid"></div>
-    <button id="auxPickerClose" class="btn ghost wide">Bekor qilish</button>
+    <button id="auxPickerClose" class="btn ghost wide" data-i18n="cancel">Bekor qilish</button>
   </div>
 </div>
 
 <!-- Qurilmalar ro'yxati va o'chirish -->
 <div id="devicesBox" class="modal" hidden>
   <div class="modal-card sheet" role="dialog" aria-modal="true" aria-labelledby="devicesTitle">
-    <h3 id="devicesTitle">Ulangan qurilmalar</h3>
-    <ul id="devicesList" class="dev-list"><li class="muted">Yuklanmoqda…</li></ul>
+    <h3 id="devicesTitle" data-i18n="devTitle">Ulangan qurilmalar</h3>
+    <ul id="devicesList" class="dev-list"><li class="muted" data-i18n="loading">Yuklanmoqda…</li></ul>
     <form id="devRemoveForm" class="dev-remove" novalidate hidden>
       <p id="devRemoveText"></p>
       <label for="devRemoveId">ID</label>
       <input id="devRemoveId" type="password" autocomplete="off">
       <p id="devRemoveError" class="form-error" role="alert" hidden></p>
       <div class="row">
-        <button id="devRemoveCancel" type="button" class="btn ghost">Bekor qilish</button>
-        <button type="submit" class="btn danger-solid">O'chirish</button>
+        <button id="devRemoveCancel" type="button" class="btn ghost" data-i18n="cancel">Bekor qilish</button>
+        <button type="submit" class="btn danger-solid" data-i18n="devRemove">O'chirish</button>
       </div>
     </form>
-    <button id="devicesClose" class="btn ghost wide">Yopish</button>
+    <button id="devicesClose" class="btn ghost wide" data-i18n="close">Yopish</button>
   </div>
 </div>
 
@@ -327,12 +340,13 @@
 <div id="ringBox" class="ring" hidden>
   <div class="ring-card" role="alertdialog" aria-modal="true" aria-labelledby="ringTitle" aria-describedby="ringText">
     <svg class="ring-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0-6 6v4l-2 3h16l-2-3V9a6 6 0 0 0-6-6z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>
-    <h2 id="ringTitle">Ogohlantirish!</h2>
+    <h2 id="ringTitle" data-i18n="ringTitle">Ogohlantirish!</h2>
     <p id="ringText"></p>
-    <button id="ringStop" class="btn ring-stop">To'xtatish</button>
+    <button id="ringStop" class="btn ring-stop" data-i18n="ringStop">To'xtatish</button>
   </div>
 </div>
 
-<script src="app.js?v=21"></script>
+<script src="i18n.js?v=22"></script>
+<script src="app.js?v=22"></script>
 </body>
 </html>
