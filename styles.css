@@ -211,9 +211,10 @@ button { font: inherit; }
   width: 100%; max-width: 520px; margin: 0 auto;
 }
 .car-area { position: relative; width: 100%; display: flex; justify-content: center; align-items: center; }
+/* Ikkala ustun bir xil balandlikda va tepadan boshlanadi - chap va o'ngdagi yozuvlar bir qatorda. */
 .side {
-  position: absolute; top: 50%; transform: translateY(-50%);
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  position: absolute; top: 50%; transform: translateY(-50%); height: 260px;
+  display: flex; flex-direction: column; justify-content: flex-start; align-items: center; gap: 2px;
   min-width: 64px; text-align: center; z-index: 2;
 }
 .side.left { left: 6px; }
@@ -458,3 +459,6 @@ button { font: inherit; }
 .gas-bars i.on { background: #2e7d32; }
 .gas-bars i.on:nth-child(1) { background: #d32f2f; }
 .gas-bars[hidden] { display: none; }
+
+/* Taymer: harorat rejimida ikki qator (harorat, tagida vaqt) */
+.countdown { white-space: pre-line; text-align: center; }

@@ -160,8 +160,8 @@ function renderStatus() {
   if (engineOn && typeof s.autoStartRemainingSec === 'number' && s.autoStartRemainingSec > 0) {
     const m = Math.floor(s.autoStartRemainingSec / 60);
     const sec = String(s.autoStartRemainingSec % 60).padStart(2, '0');
-    // Harorat rejimida: maqsad harorati va xavfsizlik vaqti birga.
-    cd.textContent = (typeof s.autoStartTempTarget === 'number' ? s.autoStartTempTarget + '°C gacha · ' : '') + m + ':' + sec;
+    // Harorat rejimida: yuqorida maqsad harorati, tagida xavfsizlik taymeri.
+    cd.textContent = (typeof s.autoStartTempTarget === 'number' ? t('countTo', s.autoStartTempTarget) + '\n' : '') + m + ':' + sec;
     cd.hidden = false;
   } else {
     cd.hidden = true;
@@ -372,6 +372,9 @@ function handleMessage(msg) {
       Object.assign(state.status, msg);
       // Mashina gazni yubormay qo'ysa (gaz yo'q) - eski ko'rsatkich qolib ketmasin.
       if (!('metanPct' in msg)) { delete state.status.metanPct; delete state.status.metanV; }
+      // Taymer faqat telefondan qilingan zavodda keladi - qo'lda zavodda eskisi qolib ketmasin.
+      if (!('autoStartRemainingSec' in msg)) delete state.status.autoStartRemainingSec;
+      if (!('autoStartTempTarget' in msg)) delete state.status.autoStartTempTarget;
       state.statusAt = Date.now();
       saveLastStatus();
       updateConnPill();
