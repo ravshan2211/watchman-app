@@ -530,6 +530,8 @@ function openPage(name) {
   if (name === 'push') refreshPushUi();
   if (name === 'timer') fillTimerForm();
   if (name === 'autotemp') fillAutoTempForm();
+  if (name === 'autocool') fillClimateForm('cool');
+  if (name === 'autoheat') fillClimateForm('heat');
   if (name === 'general') renderWifiNow();
 }
 function closePage() {
@@ -662,6 +664,26 @@ $('autoTempForm').addEventListener('submit', (e) => {
   if (send({ type: 'cmd', cmd: 'SetAutoTemp', tempOn: $('autoTempOn').checked, tempC })) toast('Saqlandi');
   else toast("Server bilan aloqa yo'q", true);
 });
+
+// ---------------- Avtozapusk -> COOL / HEAT (buyruq SetClimate) ----------------
+function fillClimateForm(key) {
+  const s = state.status;
+  const K = key === 'cool' ? 'Cool' : 'Heat';
+  const supported = typeof s['t' + K + 'On'] === 'boolean';
+  $(key + 'On').checked = !!s['t' + K + 'On'];
+  $(key + 'Btn').checked = supported ? !!s['t' + K + 'Btn'] : true;
+  $(key + 'NoFw').hidden = supported || !state.statusAt;
+  $(key + 'NoPin').hidden = !supported || s['t' + K + 'Pin'] !== false;
+}
+document.querySelectorAll('[data-climate]').forEach((form) => form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const key = form.dataset.climate;
+  const msg = { type: 'cmd', cmd: 'SetClimate' };
+  msg[key + 'On'] = $(key + 'On').checked;
+  msg[key + 'Btn'] = $(key + 'Btn').checked;
+  if (send(msg)) toast('Saqlandi');
+  else toast("Server bilan aloqa yo'q", true);
+}));
 
 // ---------------- Sozlamalar: WiFi (buyruq SetWifi) ----------------
 function renderWifiNow() {

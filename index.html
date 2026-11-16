@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="styles.css?v=18">
+<link rel="stylesheet" href="styles.css?v=20">
 </head>
 <body>
 
@@ -174,8 +174,8 @@
     <div class="page-body">
       <div class="menu-list">
         <button class="menu-item" data-page="autotemp">TEMP <span>›</span></button>
-        <button class="menu-item" disabled>COOL <small>tez orada</small></button>
-        <button class="menu-item" disabled>HEAT <small>tez orada</small></button>
+        <button class="menu-item" data-page="autocool">COOL <span>›</span></button>
+        <button class="menu-item" data-page="autoheat">HEAT <span>›</span></button>
       </div>
     </div>
   </section>
@@ -193,6 +193,32 @@
         <p id="autoTempError" class="form-error" role="alert" hidden></p>
         <button class="wide-btn" type="submit">Saqlash</button>
       </div>
+    </form>
+  </section>
+
+  <!-- Avtozapusk -> COOL (buyruq SetClimate) -->
+  <section id="page-autocool" class="page" hidden>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">COOL</div></header>
+    <form id="autocoolForm" class="page-body" novalidate data-climate="cool">
+      <label class="switch-row"><span>COOL</span><input id="coolOn" type="checkbox" role="switch"><i></i></label>
+      <label class="switch-row"><span>KNOPKA</span><input id="coolBtn" type="checkbox" role="switch"><i></i></label>
+      <p class="sec-hint">Telefondan zavod qilingan dvigatel o't olgandan 35 soniya keyin: KNOPKA yoqilgan bo'lsa - rele 0.5 soniya ishlaydi (tugmani bosgandek); KNOPKA o'chiq bo'lsa - rele yonadi va dvigatel o'chganda birga o'chadi.</p>
+      <p id="coolNoPin" class="sec-hint" hidden>Bu rele hali ulanmagan - usta uni ESP32 ga ulab, pinini belgilashi kerak.</p>
+      <p id="coolNoFw" class="sec-hint" hidden>Mashinadagi dastur hali bu funksiyani qo'llamaydi - u yangilangach ishlaydi.</p>
+      <button class="wide-btn" type="submit">Saqlash</button>
+    </form>
+  </section>
+
+  <!-- Avtozapusk -> HEAT (buyruq SetClimate) -->
+  <section id="page-autoheat" class="page" hidden>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">HEAT</div></header>
+    <form id="autoheatForm" class="page-body" novalidate data-climate="heat">
+      <label class="switch-row"><span>HEAT</span><input id="heatOn" type="checkbox" role="switch"><i></i></label>
+      <label class="switch-row"><span>KNOPKA</span><input id="heatBtn" type="checkbox" role="switch"><i></i></label>
+      <p class="sec-hint">Telefondan zavod qilingan dvigatel o't olgandan 30 soniya keyin: KNOPKA yoqilgan bo'lsa - rele 0.5 soniya ishlaydi (tugmani bosgandek); KNOPKA o'chiq bo'lsa - rele yonadi va dvigatel o'chganda birga o'chadi.</p>
+      <p id="heatNoPin" class="sec-hint" hidden>Bu rele hali ulanmagan - usta uni ESP32 ga ulab, pinini belgilashi kerak.</p>
+      <p id="heatNoFw" class="sec-hint" hidden>Mashinadagi dastur hali bu funksiyani qo'llamaydi - u yangilangach ishlaydi.</p>
+      <button class="wide-btn" type="submit">Saqlash</button>
     </form>
   </section>
 
@@ -295,6 +321,6 @@
   </div>
 </div>
 
-<script src="app.js?v=18"></script>
+<script src="app.js?v=20"></script>
 </body>
 </html>
