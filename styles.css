@@ -446,3 +446,15 @@ button { font: inherit; }
 .metan-row > span { flex: 1; }
 .metan-row b { font-size: 18px; min-width: 14px; text-align: center; }
 .form-page label.metan-row { display: flex; margin: 4px 0 0; font-size: 20px; }
+
+/* METAN: antenna ko'rinishidagi 5 ta tayoqcha */
+.gas-bars { display: flex; align-items: flex-end; gap: 3px; height: 22px; }
+.gas-bars i { width: 6px; border-radius: 1px; background: rgba(0, 0, 0, 0.22); }
+.gas-bars i:nth-child(1) { height: 20%; }
+.gas-bars i:nth-child(2) { height: 40%; }
+.gas-bars i:nth-child(3) { height: 60%; }
+.gas-bars i:nth-child(4) { height: 80%; }
+.gas-bars i:nth-child(5) { height: 100%; }
+.gas-bars i.on { background: #2e7d32; }
+.gas-bars i.on:nth-child(1) { background: #d32f2f; }
+.gas-bars[hidden] { display: none; }

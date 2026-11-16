@@ -239,6 +239,7 @@ const EVENT_EXACT = {
   "internet yo'qolgan edi - modem qayta yoqildi, aloqa tiklandi": ['Интернет пропадал — модем перезапущен, связь восстановлена', 'Internet was lost - modem restarted, connection restored'],
   "mashina kalit bilan ochildi - qo'riqlash o'chirildi": ['Машина открыта ключом — охрана отключена', 'Car unlocked with the key - alarm disarmed'],
   "wifi tarmog'i muvaffaqiyatli o'zgartirildi": ['Сеть WiFi успешно изменена', 'WiFi network changed successfully'],
+  "gaz datchigidan signal kelmadi - bu mashinada gaz yo'q deb hisoblandi": ['Нет сигнала от датчика газа — считается, что газа в этой машине нет', 'No signal from the gas sensor - this car is treated as having no gas'],
   'watchman: ogohlantirish': ['WATCHMAN: тревога', 'WATCHMAN: alert'],
   'yangi xabar': ['Новое сообщение', 'New message'],
 };

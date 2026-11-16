@@ -147,7 +147,12 @@ function renderStatus() {
   const hasMetan = typeof s.metanPct === 'number';
   $('metanCap').hidden = !hasMetan;
   $('metanVal').hidden = !hasMetan;
-  if (hasMetan) setVal('metanVal', s.metanPct + '%', s.metanPct <= 10);
+  if (hasMetan) {
+    // 5 ta tayoqcha (har biri 20 %): birinchisi qizil, qolgani yashil; yonmagani kulrang.
+    const lit = Math.min(5, Math.ceil(Math.max(0, s.metanPct) / 20));
+    [...$('metanVal').children].forEach((bar, i) => bar.classList.toggle('on', i < lit));
+    $('metanVal').setAttribute('aria-label', 'METAN ' + s.metanPct + '%');
+  }
   setVal('batVal', s.akbQuvvati ? s.akbQuvvati + 'V' : '-', s.akbQuvvati && parseFloat(s.akbQuvvati) < 11.8);
   setVal('accVal', s.accOn === 'ACC_HIGH' ? 'HIGH' : s.accOn === undefined && s.mator === undefined ? '-' : engineOn ? 'ON' : 'OFF');
 
@@ -365,6 +370,8 @@ function handleMessage(msg) {
     case 'status':
       state.deviceOnline = true;
       Object.assign(state.status, msg);
+      // Mashina gazni yubormay qo'ysa (gaz yo'q) - eski ko'rsatkich qolib ketmasin.
+      if (!('metanPct' in msg)) { delete state.status.metanPct; delete state.status.metanV; }
       state.statusAt = Date.now();
       saveLastStatus();
       updateConnPill();
