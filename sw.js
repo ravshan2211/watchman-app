@@ -2,14 +2,14 @@
 // 1) ilova qobig'ini keshlaydi - internet sekin bo'lsa ham tez ochiladi;
 // 2) serverdan kelgan push-bildirishnomalarni ko'rsatadi (ilova yopiq bo'lsa ham).
 // index.html dagi ?v= bilan bir xil raqam - har yangilanishda ikkalasini oshiring.
-const CACHE = 'watchman-v28';
-importScripts('./i18n.js?v=28');  // trEvent(), LANGS, PREFS_CACHE (tanlangan til)
+const CACHE = 'watchman-v29';
+importScripts('./i18n.js?v=29');  // trEvent(), LANGS, PREFS_CACHE (tanlangan til)
 const SHELL = [
   './',
   './index.html',
-  './styles.css?v=28',
-  './i18n.js?v=28',
-  './app.js?v=28',
+  './styles.css?v=29',
+  './i18n.js?v=29',
+  './app.js?v=29',
   './manifest.webmanifest',
   './icons/apple-touch-icon.png',
   './icons/icon-192.png',

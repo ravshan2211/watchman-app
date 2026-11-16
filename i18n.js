@@ -76,7 +76,7 @@ const I18N = {
   seat3: ["O'rindiq 3", 'Сиденье 3', 'SEATS 3'],
   seat4: ["O'rindiq 4", 'Сиденье 4', 'SEATS 4'],
 
-  countTo: ['{0}°C gacha', 'до {0}°C', 'until {0}°C'],
+  countTo: ['{0}°C', '{0}°C', '{0}°C'],
 
   // Avtozapusk -> TEMP
   tempByTemp: ["Harorat bo'yicha o'chirish", 'Выключение по температуре', 'Stop by temperature'],

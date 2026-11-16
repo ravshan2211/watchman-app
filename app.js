@@ -548,7 +548,7 @@ function openPage(name) {
   if (name === 'autocool') fillClimateForm('cool');
   if (name === 'autoheat') fillClimateForm('heat');
   if (name === 'autoseats') fillSeatsForm();
-  if (name === 'general') { renderWifiNow(); $('metanGen').checked = state.status.tMetanGen !== 3; }
+  if (name === 'general') renderWifiNow();
 }
 function closePage() {
   const cur = pageStack.pop();
@@ -738,12 +738,6 @@ document.querySelectorAll('[data-lang]').forEach((b) => b.addEventListener('clic
 applyI18n();
 renderLangPage();
 shareLangWithSw();
-
-// ---------------- Sozlamalar: METAN avlodi (o'chiq = 3, yoqiq = 4; buyruq SetMetan) ----------------
-$('metanGen').addEventListener('change', (e) => {
-  if (send({ type: 'cmd', cmd: 'SetMetan', gen: e.target.checked ? 4 : 3 })) toast(t('saved'));
-  else { toast(t('noServer'), true); e.target.checked = !e.target.checked; }
-});
 
 // ---------------- Sozlamalar: WiFi (buyruq SetWifi) ----------------
 function renderWifiNow() {
