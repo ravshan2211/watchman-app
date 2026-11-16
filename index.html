@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="styles.css?v=20">
+<link rel="stylesheet" href="styles.css?v=21">
 </head>
 <body>
 
@@ -176,6 +176,7 @@
         <button class="menu-item" data-page="autotemp">TEMP <span>›</span></button>
         <button class="menu-item" data-page="autocool">COOL <span>›</span></button>
         <button class="menu-item" data-page="autoheat">HEAT <span>›</span></button>
+        <button class="menu-item" data-page="autoseats">SEATS <span>›</span></button>
       </div>
     </div>
   </section>
@@ -188,7 +189,6 @@
       <div class="form-page">
         <label for="autoTempC">Harorat (°C, 60 - 99)</label>
         <input id="autoTempC" inputmode="numeric" autocomplete="off">
-        <p class="sec-hint">Yoqilgan bo'lsa, telefondan zavod qilingan dvigatel vaqt bo'yicha emas, shu haroratga yetganda o'chadi va telefonga xabar keladi. Xavfsizlik uchun dvigatel ko'pi bilan 20 daqiqa ishlaydi.</p>
         <p id="autoTempNote" class="sec-hint" hidden>Mashinadagi dastur hali bu funksiyani qo'llamaydi - u yangilangach ishlaydi.</p>
         <p id="autoTempError" class="form-error" role="alert" hidden></p>
         <button class="wide-btn" type="submit">Saqlash</button>
@@ -202,7 +202,6 @@
     <form id="autocoolForm" class="page-body" novalidate data-climate="cool">
       <label class="switch-row"><span>COOL</span><input id="coolOn" type="checkbox" role="switch"><i></i></label>
       <label class="switch-row"><span>KNOPKA</span><input id="coolBtn" type="checkbox" role="switch"><i></i></label>
-      <p class="sec-hint">Telefondan zavod qilingan dvigatel o't olgandan 35 soniya keyin: KNOPKA yoqilgan bo'lsa - rele 0.5 soniya ishlaydi (tugmani bosgandek); KNOPKA o'chiq bo'lsa - rele yonadi va dvigatel o'chganda birga o'chadi.</p>
       <p id="coolNoPin" class="sec-hint" hidden>Bu rele hali ulanmagan - usta uni ESP32 ga ulab, pinini belgilashi kerak.</p>
       <p id="coolNoFw" class="sec-hint" hidden>Mashinadagi dastur hali bu funksiyani qo'llamaydi - u yangilangach ishlaydi.</p>
       <button class="wide-btn" type="submit">Saqlash</button>
@@ -215,9 +214,22 @@
     <form id="autoheatForm" class="page-body" novalidate data-climate="heat">
       <label class="switch-row"><span>HEAT</span><input id="heatOn" type="checkbox" role="switch"><i></i></label>
       <label class="switch-row"><span>KNOPKA</span><input id="heatBtn" type="checkbox" role="switch"><i></i></label>
-      <p class="sec-hint">Telefondan zavod qilingan dvigatel o't olgandan 30 soniya keyin: KNOPKA yoqilgan bo'lsa - rele 0.5 soniya ishlaydi (tugmani bosgandek); KNOPKA o'chiq bo'lsa - rele yonadi va dvigatel o'chganda birga o'chadi.</p>
       <p id="heatNoPin" class="sec-hint" hidden>Bu rele hali ulanmagan - usta uni ESP32 ga ulab, pinini belgilashi kerak.</p>
       <p id="heatNoFw" class="sec-hint" hidden>Mashinadagi dastur hali bu funksiyani qo'llamaydi - u yangilangach ishlaydi.</p>
+      <button class="wide-btn" type="submit">Saqlash</button>
+    </form>
+  </section>
+
+  <!-- Avtozapusk -> SEATS (buyruq SetSeats) -->
+  <section id="page-autoseats" class="page" hidden>
+    <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga">‹</button><div class="tb-title plain">SEATS</div></header>
+    <form id="autoseatsForm" class="page-body" novalidate>
+      <label class="switch-row"><span>BUTTON</span><input id="seatBtn" type="checkbox" role="switch"><i></i></label>
+      <label class="switch-row"><span>SEATS 1</span><input id="seat1" type="checkbox" role="switch"><i></i></label>
+      <label class="switch-row"><span>SEATS 2</span><input id="seat2" type="checkbox" role="switch"><i></i></label>
+      <label class="switch-row"><span>SEATS 3</span><input id="seat3" type="checkbox" role="switch"><i></i></label>
+      <label class="switch-row"><span>SEATS 4</span><input id="seat4" type="checkbox" role="switch"><i></i></label>
+      <p id="seatsNoFw" class="sec-hint" hidden>Mashinadagi dastur hali bu funksiyani qo'llamaydi - u yangilangach ishlaydi.</p>
       <button class="wide-btn" type="submit">Saqlash</button>
     </form>
   </section>
@@ -321,6 +333,6 @@
   </div>
 </div>
 
-<script src="app.js?v=20"></script>
+<script src="app.js?v=21"></script>
 </body>
 </html>

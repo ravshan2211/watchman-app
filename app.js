@@ -532,6 +532,7 @@ function openPage(name) {
   if (name === 'autotemp') fillAutoTempForm();
   if (name === 'autocool') fillClimateForm('cool');
   if (name === 'autoheat') fillClimateForm('heat');
+  if (name === 'autoseats') fillSeatsForm();
   if (name === 'general') renderWifiNow();
 }
 function closePage() {
@@ -684,6 +685,22 @@ document.querySelectorAll('[data-climate]').forEach((form) => form.addEventListe
   if (send(msg)) toast('Saqlandi');
   else toast("Server bilan aloqa yo'q", true);
 }));
+
+// ---------------- Avtozapusk -> SEATS (buyruq SetSeats) ----------------
+function fillSeatsForm() {
+  const s = state.status;
+  const supported = typeof s.tSeatBtn === 'boolean';
+  $('seatBtn').checked = supported ? s.tSeatBtn : true;
+  for (let n = 1; n <= 4; n++) $('seat' + n).checked = !!s['tSeat' + n];
+  $('seatsNoFw').hidden = supported || !state.statusAt;
+}
+$('autoseatsForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const msg = { type: 'cmd', cmd: 'SetSeats', seatBtn: $('seatBtn').checked };
+  for (let n = 1; n <= 4; n++) msg['seat' + n] = $('seat' + n).checked;
+  if (send(msg)) toast('Saqlandi');
+  else toast("Server bilan aloqa yo'q", true);
+});
 
 // ---------------- Sozlamalar: WiFi (buyruq SetWifi) ----------------
 function renderWifiNow() {
