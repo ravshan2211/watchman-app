@@ -471,3 +471,6 @@ button { font: inherit; }
 .siren-btn.off .wave { display: none; }
 .siren-btn.off .slash { display: inline; }
 .siren-btn[hidden] { display: none; }
+
+/* ENGINE: zavod qilingan / o't oldirilmoqda - ichki doira yashil (o'chirish uchun bosilsa asl rang) */
+.engine.started .engine-in { background: #2e7d32; color: #fff; transition: background 0.3s; }

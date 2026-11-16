@@ -120,6 +120,9 @@ function renderStatus() {
   const engineOn = s.mator !== undefined ? /toldirilgan/i.test(s.mator) : s.accOn === true;
   $('smoke').hidden = !engineOn;
   $('engineBtn').classList.toggle('running', engineOn);
+  // Rang: zavod uchun bosilgan yoki dvigatel ishlayapti - boshqa rang; o'chgach - asl holat.
+  if (engineOn) state.engineStartPendingUntil = 0;
+  $('engineBtn').classList.toggle('started', engineOn || Date.now() < (state.engineStartPendingUntil || 0));
 
   const doorsOpen = s.doorsOpen !== undefined ? !!s.doorsOpen : s.avtoulov !== undefined ? yes(s.avtoulov) : false;
   const trunkOpen = s.bagajHolati !== undefined && /ochiq/i.test(s.bagajHolati);
@@ -518,12 +521,30 @@ document.addEventListener('click', async (e) => {
   const cmd = btn.dataset.cmd;
   if (btn.dataset.confirm && !(await askConfirm(btn.dataset.confirm))) return;
   if (send({ type: 'cmd', cmd })) {
+    if (cmd === 'EngineStart') onEngineButtonSent();
     toast('Yuborildi: ' + (btn.getAttribute('aria-label') || btn.textContent).replace(/\s+/g, ' ').trim());
     if (navigator.vibrate) navigator.vibrate(30);
   } else {
     toast(t('noServer'), true);
   }
 });
+
+// ENGINE tugmasi: o't oldirish uchun bosilsa - darhol rang o'zgaradi (o't olguncha kutiladi,
+// 60 s ichida o't olmasa - asl rangga qaytadi); o'chirish uchun bosilsa - darhol asl rang.
+const ENGINE_START_WAIT_MS = 60000;
+function onEngineButtonSent() {
+  const s = state.status;
+  const engineOn = s.mator !== undefined ? /toldirilgan/i.test(s.mator) : s.accOn === true;
+  clearTimeout(state.engineStartTimer);
+  if (engineOn || $('engineBtn').classList.contains('started')) {
+    state.engineStartPendingUntil = 0;
+    $('engineBtn').classList.remove('started');
+  } else {
+    state.engineStartPendingUntil = Date.now() + ENGINE_START_WAIT_MS;
+    $('engineBtn').classList.add('started');
+    state.engineStartTimer = setTimeout(renderStatus, ENGINE_START_WAIT_MS + 100);
+  }
+}
 
 function askConfirm(text) {
   return new Promise((resolve) => {
