@@ -462,3 +462,12 @@ button { font: inherit; }
 
 /* Taymer: harorat rejimida ikki qator (harorat, tagida vaqt) */
 .countdown { white-space: pre-line; text-align: center; }
+
+/* Sirena tugmasi (toolbar): yoqiq - to'lqinlar, o'chiq - X belgisi */
+.siren-btn svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.siren-btn .spk { fill: currentColor; }
+.siren-btn .slash { display: none; }
+.siren-btn.off { opacity: 0.75; }
+.siren-btn.off .wave { display: none; }
+.siren-btn.off .slash { display: inline; }
+.siren-btn[hidden] { display: none; }

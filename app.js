@@ -153,6 +153,14 @@ function renderStatus() {
     [...$('metanVal').children].forEach((bar, i) => bar.classList.toggle('on', i < lit));
     $('metanVal').setAttribute('aria-label', 'METAN ' + s.metanPct + '%');
   }
+  // Sirena tugmasi (bosh ekran): faqat mashina bu funksiyani qo'llasa ko'rinadi.
+  const hasSiren = typeof s.tSirenOn === 'boolean';
+  $('sirenBtn').hidden = !hasSiren;
+  if (hasSiren) {
+    $('sirenBtn').classList.toggle('off', !s.tSirenOn);
+    $('sirenBtn').setAttribute('aria-label', t(s.tSirenOn ? 'sirenIsOn' : 'sirenIsOff'));
+    $('sirenBtn').setAttribute('aria-pressed', s.tSirenOn ? 'true' : 'false');
+  }
   setVal('batVal', s.akbQuvvati ? s.akbQuvvati + 'V' : '-', s.akbQuvvati && parseFloat(s.akbQuvvati) < 11.8);
   setVal('accVal', s.accOn === 'ACC_HIGH' ? 'HIGH' : s.accOn === undefined && s.mator === undefined ? '-' : engineOn ? 'ON' : 'OFF');
 
@@ -738,6 +746,13 @@ document.querySelectorAll('[data-lang]').forEach((b) => b.addEventListener('clic
 applyI18n();
 renderLangPage();
 shareLangWithSw();
+
+// ---------------- Sirena yoqish/o'chirish (bosh ekran, buyruq SetSiren) ----------------
+$('sirenBtn').addEventListener('click', () => {
+  const on = !state.status.tSirenOn;
+  if (send({ type: 'cmd', cmd: 'SetSiren', on })) toast(t(on ? 'sirenTurnedOn' : 'sirenTurnedOff'));
+  else toast(t('noServer'), true);
+});
 
 // ---------------- Sozlamalar: WiFi (buyruq SetWifi) ----------------
 function renderWifiNow() {

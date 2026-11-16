@@ -77,6 +77,10 @@ const I18N = {
   seat4: ["O'rindiq 4", 'Сиденье 4', 'SEATS 4'],
 
   countTo: ['{0}°C', '{0}°C', '{0}°C'],
+  sirenIsOn: ['Sirena yoqiq', 'Сирена включена', 'Siren on'],
+  sirenIsOff: ["Sirena o'chiq", 'Сирена выключена', 'Siren off'],
+  sirenTurnedOn: ['Sirena yoqildi', 'Сирена включена', 'Siren turned on'],
+  sirenTurnedOff: ["Sirena o'chirildi - ovoz chiqmaydi", 'Сирена выключена — звука не будет', 'Siren turned off - no sound'],
 
   // Avtozapusk -> TEMP
   tempByTemp: ["Harorat bo'yicha o'chirish", 'Выключение по температуре', 'Stop by temperature'],
