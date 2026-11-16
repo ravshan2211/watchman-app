@@ -16,7 +16,7 @@ const I18N = {
   history: ['Komandalar', 'Команды', 'Commands'],
   location: ['Joylashuv', 'Местоположение', 'Location'],
   push: ['Bildirishnomalar', 'Уведомления', 'Notifications'],
-  language: ['Language', 'Language', 'Language'],
+  language: ['Til', 'Язык', 'Language'],
   logout: ['Chiqish', 'Выйти', 'Log out'],
   privacy: ['Maxfiylik siyosati', 'Политика конфиденциальности', 'Privacy policy'],
   save: ['Saqlash', 'Сохранить', 'Save'],
@@ -63,6 +63,18 @@ const I18N = {
   lockWord: ['Yopish', 'Закрытие', 'Lock'],
   errSeconds: ['{0}: 0.1 dan 30 soniyagacha kiriting', '{0}: введите от 0.1 до 30 секунд', '{0}: enter 0.1 to 30 seconds'],
   errAutoMin: ['Avtozapusk: 0 yoki 5 dan 30 daqiqagacha', 'Автозапуск: 0 или от 5 до 30 минут', 'Remote start: 0 or 5 to 30 minutes'],
+
+  // Avtozapusk bo'limlari (inglizchada asl nomlari qoladi)
+  secTemp: ['Harorat', 'Температура', 'TEMP'],
+  secCool: ['Sovutish', 'Охлаждение', 'COOL'],
+  secHeat: ['Isitish', 'Обогрев', 'HEAT'],
+  secSeats: ["O'rindiq", 'Сиденья', 'SEATS'],
+  knopka: ['Tugma', 'Кнопка', 'BUTTON'],
+  seatButton: ['Tugma', 'Кнопка', 'BUTTON'],
+  seat1: ["O'rindiq 1", 'Сиденье 1', 'SEATS 1'],
+  seat2: ["O'rindiq 2", 'Сиденье 2', 'SEATS 2'],
+  seat3: ["O'rindiq 3", 'Сиденье 3', 'SEATS 3'],
+  seat4: ["O'rindiq 4", 'Сиденье 4', 'SEATS 4'],
 
   // Avtozapusk -> TEMP
   tempByTemp: ["Harorat bo'yicha o'chirish", 'Выключение по температуре', 'Stop by temperature'],
