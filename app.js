@@ -144,6 +144,10 @@ function renderStatus() {
   $('fuelCap').hidden = !hasFuel;
   $('fuelVal').hidden = !hasFuel;
   if (hasFuel) setVal('fuelVal', hasLitres ? s.fuelL + ' L' : s.fuelPct + '%', hasLitres ? s.fuelL <= 5 : s.fuelPct <= 10);
+  const hasMetan = typeof s.metanPct === 'number';
+  $('metanCap').hidden = !hasMetan;
+  $('metanVal').hidden = !hasMetan;
+  if (hasMetan) setVal('metanVal', s.metanPct + '%', s.metanPct <= 10);
   setVal('batVal', s.akbQuvvati ? s.akbQuvvati + 'V' : '-', s.akbQuvvati && parseFloat(s.akbQuvvati) < 11.8);
   setVal('accVal', s.accOn === 'ACC_HIGH' ? 'HIGH' : s.accOn === undefined && s.mator === undefined ? '-' : engineOn ? 'ON' : 'OFF');
 
@@ -534,7 +538,7 @@ function openPage(name) {
   if (name === 'autocool') fillClimateForm('cool');
   if (name === 'autoheat') fillClimateForm('heat');
   if (name === 'autoseats') fillSeatsForm();
-  if (name === 'general') renderWifiNow();
+  if (name === 'general') { renderWifiNow(); $('metanGen').checked = state.status.tMetanGen !== 3; }
 }
 function closePage() {
   const cur = pageStack.pop();
@@ -724,6 +728,12 @@ document.querySelectorAll('[data-lang]').forEach((b) => b.addEventListener('clic
 applyI18n();
 renderLangPage();
 shareLangWithSw();
+
+// ---------------- Sozlamalar: METAN avlodi (o'chiq = 3, yoqiq = 4; buyruq SetMetan) ----------------
+$('metanGen').addEventListener('change', (e) => {
+  if (send({ type: 'cmd', cmd: 'SetMetan', gen: e.target.checked ? 4 : 3 })) toast(t('saved'));
+  else { toast(t('noServer'), true); e.target.checked = !e.target.checked; }
+});
 
 // ---------------- Sozlamalar: WiFi (buyruq SetWifi) ----------------
 function renderWifiNow() {

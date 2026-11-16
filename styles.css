@@ -440,3 +440,9 @@ button { font: inherit; }
 .menu-item:disabled { opacity: 0.5; cursor: default; }
 .menu-item small { font-size: 14px; font-weight: 400; }
 #page-autotemp .form-page { padding: 0; }
+
+/* METAN: chapda 3, o'ngda 4 - tugma ular orasida */
+.metan-row { justify-content: flex-start; gap: 12px; }
+.metan-row > span { flex: 1; }
+.metan-row b { font-size: 18px; min-width: 14px; text-align: center; }
+.form-page label.metan-row { display: flex; margin: 4px 0 0; font-size: 20px; }
