@@ -189,7 +189,7 @@ function renderAlerts() {
   for (const a of state.alerts.slice(0, 5)) {
     const li = document.createElement('li');
     if (a.type === 'alert') li.className = 'alert-item';
-    const t = document.createElement('span'); t.textContent = a.reason;
+    const t = document.createElement('span'); t.textContent = trEvent(a.reason);
     const tm = document.createElement('span'); tm.className = 't'; tm.textContent = fmtTime(a.ts);
     li.append(t, tm);
     ul.appendChild(li);
@@ -254,6 +254,7 @@ $('locRefresh').addEventListener('click', () => {
 });
 
 function renderHistory(events) {
+  state.lastHistory = events;
   const ul = $('historyList');
   ul.textContent = '';
   if (!events || !events.length) {
@@ -263,7 +264,7 @@ function renderHistory(events) {
   for (const e of events) {
     const li = document.createElement('li');
     const tm = document.createElement('span'); tm.className = 't'; tm.textContent = fmtHistTime(e.ts);
-    const t = document.createElement('span'); t.textContent = e.event;
+    const t = document.createElement('span'); t.textContent = trEvent(e.event);
     li.append(tm, t);
     ul.appendChild(li);
   }
@@ -372,8 +373,8 @@ function handleMessage(msg) {
         state.alerts.unshift({ type: msg.type, reason: msg.reason, ts: Date.now() });
         state.alerts = state.alerts.slice(0, 20);
         renderAlerts();
-        if (msg.type === 'alert' && document.visibilityState === 'visible') startRing(msg.reason);
-        else toast(msg.reason, msg.type === 'alert');
+        if (msg.type === 'alert' && document.visibilityState === 'visible') startRing(trEvent(msg.reason));
+        else toast(trEvent(msg.reason), msg.type === 'alert');
       }
       break;
     case 'history':
@@ -715,12 +716,14 @@ document.querySelectorAll('[data-lang]').forEach((b) => b.addEventListener('clic
   renderLangPage();
   // JS yozgan matnlar ham yangi tilda qayta chiziladi.
   renderAlerts();
+  if (state.lastHistory) renderHistory(state.lastHistory);
   renderLocation();
   renderWifiNow();
   refreshPushUi();
 }));
 applyI18n();
 renderLangPage();
+shareLangWithSw();
 
 // ---------------- Sozlamalar: WiFi (buyruq SetWifi) ----------------
 function renderWifiNow() {

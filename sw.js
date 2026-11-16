@@ -2,13 +2,14 @@
 // 1) ilova qobig'ini keshlaydi - internet sekin bo'lsa ham tez ochiladi;
 // 2) serverdan kelgan push-bildirishnomalarni ko'rsatadi (ilova yopiq bo'lsa ham).
 // index.html dagi ?v= bilan bir xil raqam - har yangilanishda ikkalasini oshiring.
-const CACHE = 'watchman-v23';
+const CACHE = 'watchman-v24';
+importScripts('./i18n.js?v=24');  // trEvent(), LANGS, PREFS_CACHE (tanlangan til)
 const SHELL = [
   './',
   './index.html',
-  './styles.css?v=23',
-  './i18n.js?v=23',
-  './app.js?v=23',
+  './styles.css?v=24',
+  './i18n.js?v=24',
+  './app.js?v=24',
   './manifest.webmanifest',
   './icons/apple-touch-icon.png',
   './icons/icon-192.png',
@@ -40,7 +41,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE && k !== PREFS_CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim()),
   );
 });
@@ -62,18 +63,24 @@ self.addEventListener('fetch', (event) => {
 
 // iOS har bir push uchun bildirishnoma ko'rsatilishini talab qiladi - shuning
 // uchun har doim ko'rsatamiz.
+async function swLang() {
+  try {
+    const r = await (await caches.open(PREFS_CACHE)).match('./lang');
+    const v = r ? (await r.text()).trim() : 'uz';
+    return LANGS.includes(v) ? v : 'uz';
+  } catch { return 'uz'; }
+}
+
 self.addEventListener('push', (event) => {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch { data = { body: event.data && event.data.text() }; }
-  const title = data.title || 'WATCHMAN';
-  const options = {
-    body: data.body || 'Yangi xabar',
+  event.waitUntil(swLang().then((lang) => self.registration.showNotification(trEvent(data.title || 'WATCHMAN', lang), {
+    body: trEvent(data.body || 'Yangi xabar', lang),
     icon: 'icons/icon-192.png',
     badge: 'icons/icon-192.png',
     tag: 'watchman-' + (data.ts || Date.now()),
     data: { url: './' },
-  };
-  event.waitUntil(self.registration.showNotification(title, options));
+  })));
 });
 
 self.addEventListener('notificationclick', (event) => {

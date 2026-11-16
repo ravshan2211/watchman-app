@@ -193,9 +193,100 @@ function applyI18n(root = document) {
   root.querySelectorAll('[data-i18n-aria]').forEach((el) => el.setAttribute('aria-label', t(el.dataset.i18nAria)));
 }
 
+// Service worker (push bildirishnomalar) localStorage'ni o'qiy olmaydi - til keshda ham saqlanadi.
+const PREFS_CACHE = 'watchman-prefs';
+function shareLangWithSw() {
+  try { caches.open(PREFS_CACHE).then((c) => c.put('./lang', new Response(currentLang))).catch(() => {}); } catch { /* e'tiborsiz */ }
+}
+
 function setLang(lang) {
   if (!LANGS.includes(lang)) return;
   currentLang = lang;
   try { localStorage.setItem(LANG_KEY, lang); } catch { /* e'tiborsiz */ }
+  shareLangWithSw();
   applyI18n();
+}
+
+// ---------------- Mashina va server xabarlari (komandalar tarixi, ogohlantirishlar, push) ----------------
+// Firmware va server o'zbekcha matn yuboradi - ilova uni tanlangan tilga o'giradi.
+// Noma'lum matn o'zgarmasdan ko'rsatiladi. Kalitlar kichik harfda solishtiriladi.
+const EVENT_EXACT = {
+  'yopish tugmasi bosildi': ['Нажата кнопка «Закрыть»', 'Lock button pressed'],
+  'ochish tugmasi bosildi': ['Нажата кнопка «Открыть»', 'Unlock button pressed'],
+  'zavod tugmasi bosildi': ['Нажата кнопка запуска', 'Engine start button pressed'],
+  'eshik ochildi': ['Дверь открыта', 'Door opened'],
+  'eshik yopildi': ['Дверь закрыта', 'Door closed'],
+  'dvigatel ishga tushdi': ['Двигатель запущен', 'Engine started'],
+  "dvigatel o'chdi": ['Двигатель заглушен', 'Engine stopped'],
+  'bagaj ochildi': ['Багажник открыт', 'Trunk opened'],
+  'kapot ochildi': ['Капот открыт', 'Hood opened'],
+  "qo'riqlashda dvigatel o't oldi": ['Двигатель запущен во время охраны', 'Engine started while armed'],
+  "qo'riqlashda kontakt yoqildi": ['Зажигание включено во время охраны', 'Ignition turned on while armed'],
+  "ruxsatsiz - avtozapusk vaqtida pedal bosildi, dvigatel o'chirildi": ['Несанкционированно: во время автозапуска нажата педаль, двигатель заглушен', 'Unauthorized: a pedal was pressed during remote start, engine stopped'],
+  "avtozapusk tugadi - dvigatel o'chirildi": ['Автозапуск завершён — двигатель заглушен', 'Remote start finished - engine stopped'],
+  "dvigatelni o'chirib bo'lmadi - start/stop tugmasi ulanishini tekshiring": ['Не удалось заглушить двигатель — проверьте подключение кнопки Start/Stop', 'Could not stop the engine - check the Start/Stop button wiring'],
+  "dvigatelni o'chirib bo'lmadi: uzatma p/n da emas": ['Не удалось заглушить двигатель: передача не в P/N', 'Could not stop the engine: gear is not in P/N'],
+  "ruxsatsiz kirish - avtozapusk vaqtida eshik/bagaj ochildi, dvigatel o'chirildi": ['Несанкционированный доступ: во время автозапуска открыта дверь/багажник, двигатель заглушен', 'Unauthorized entry: a door/trunk was opened during remote start, engine stopped'],
+  'bagaj ochiq holda qulflandi': ['Закрыто с открытым багажником', 'Locked with the trunk open'],
+  'eshik ochiq holda qulflandi': ['Закрыто с открытой дверью', 'Locked with a door open'],
+  "dvigatel o'chib qoldi": ['Двигатель заглох', 'The engine stalled'],
+  'avtomatik qulflandi - eshik ochilmadi': ['Автоматически закрыто — дверь не открывали', 'Locked automatically - no door was opened'],
+  "dvigatel o't oldi": ['Двигатель завёлся', 'Engine started'],
+  "dvigatel qo'lda o't oldirilgan - faqat qo'lda o'chiriladi": ['Двигатель запущен вручную — заглушить можно только вручную', 'The engine was started manually - it can only be stopped manually'],
+  "egasi qaytdi - dvigatel o'chirildi": ['Владелец вернулся — двигатель заглушен', 'Owner returned - engine stopped'],
+  "egasi qaytdi - taymer bekor qilindi, dvigatelni qo'lda o'chiring": ['Владелец вернулся — таймер отменён, заглушите двигатель вручную', 'Owner returned - timer cancelled, stop the engine manually'],
+  "egasi qaytdi - zavod relelari o'chirildi": ['Владелец вернулся — реле запуска отключены', 'Owner returned - start relays turned off'],
+  "internet yo'qolgan edi - modem qayta yoqildi, aloqa tiklandi": ['Интернет пропадал — модем перезапущен, связь восстановлена', 'Internet was lost - modem restarted, connection restored'],
+  "mashina kalit bilan ochildi - qo'riqlash o'chirildi": ['Машина открыта ключом — охрана отключена', 'Car unlocked with the key - alarm disarmed'],
+  "wifi tarmog'i muvaffaqiyatli o'zgartirildi": ['Сеть WiFi успешно изменена', 'WiFi network changed successfully'],
+  'watchman: ogohlantirish': ['WATCHMAN: тревога', 'WATCHMAN: alert'],
+  'yangi xabar': ['Новое сообщение', 'New message'],
+};
+// Sabablar (":" dan keyingi qism).
+const EVENT_REASONS = {
+  'eshik ochiq': ['дверь открыта', 'door open'],
+  'bagaj ochiq': ['багажник открыт', 'trunk open'],
+  'kapot ochiq': ['капот открыт', 'hood open'],
+  'harorat yuqori': ['высокая температура', 'temperature too high'],
+  'uzatma p/n da emas': ['передача не в P/N', 'gear is not in P/N'],
+  'dvigatel allaqachon ishlayapti': ['двигатель уже работает', 'the engine is already running'],
+  "o't olmadi": ['не завёлся', 'did not start'],
+  'eshik/bagaj ochildi': ['открыта дверь/багажник', 'a door/trunk was opened'],
+  'kapot ochildi': ['открыт капот', 'the hood was opened'],
+  'gaz pedali bosildi': ['нажата педаль газа', 'the gas pedal was pressed'],
+  "noma'lum": ['неизвестно', 'unknown'],
+};
+// {1}, {2} ... - topilgan qism; {r1}, {r2} ... - sabab sifatida tarjima qilinadi.
+const EVENT_PATTERNS = [
+  [/^AUX(\d) tugmasi bosildi$/i, ['Нажата кнопка AUX{1}', 'AUX{1} button pressed']],
+  [/^Asosiy Wi-Fi topilmadi - zaxira (.+) tarmog'iga ulandi$/i, ['Основная сеть Wi-Fi не найдена — подключено к резервной {1}', 'Main Wi-Fi not found - connected to the backup network {1}']],
+  [/^Akkumulyator kuchsiz: ([\d.]+) V$/i, ['Аккумулятор разряжен: {1} В', 'Battery low: {1} V']],
+  [/^Avtozapusk o'chirildi: (\d+) daqiqa o'tdi, harorat ma'lumoti kelmadi$/i, ['Автозапуск выключен: прошло {1} мин, данных о температуре нет', 'Remote start stopped: {1} minutes passed, no temperature data']],
+  [/^Avtozapusk o'chirildi: (\d+) daqiqada (\d+) °C ga yetmadi \(hozir (-?\d+) °C\)$/i, ['Автозапуск выключен: за {1} мин не достиг {2} °C (сейчас {3} °C)', 'Remote start stopped: did not reach {2} °C in {1} minutes (now {3} °C)']],
+  [/^Avtozapusk to'xtatildi: (.+)$/i, ['Автозапуск остановлен: {r1}', 'Remote start stopped: {r1}']],
+  [/^Dvigatel (-?\d+) °C ga qizidi - avtozapusk o'chirildi$/i, ['Двигатель прогрелся до {1} °C — автозапуск выключен', 'Engine warmed up to {1} °C - remote start stopped']],
+  [/^Dvigatel o't olmadi \((\d+) urinish\): (.+)$/i, ['Двигатель не завёлся ({1} попытки): {r2}', 'Engine did not start ({1} attempts): {r2}']],
+  [/^Dvigatel qizib ketdi: (-?\d+) °C - to'xtab, dvigatelni tekshiring!$/i, ['Двигатель перегрелся: {1} °C — остановитесь и проверьте двигатель!', 'Engine overheated: {1} °C - stop and check the engine!']],
+  [/^Dvigatel qizib ketdi: (-?\d+) °C - zavod o'chirildi$/i, ['Двигатель перегрелся: {1} °C — автозапуск выключен', 'Engine overheated: {1} °C - remote start stopped']],
+  [/^Zavod bo'lmadi - (\d+) urinishda ham o't olmadi$/i, ['Запуск не удался — не завёлся за {1} попытки', 'Start failed - did not start after {1} attempts']],
+];
+
+function trEvent(text, lang = currentLang) {
+  if (!text || lang === 'uz') return text;
+  const li = LANGS.indexOf(lang) - 1;  // EVENT_* jadvallarida faqat ru va en
+  if (li < 0) return text;
+  const raw = String(text).trim();
+  const exact = EVENT_EXACT[raw.toLowerCase()];
+  if (exact) return exact[li];
+  for (const [re, out] of EVENT_PATTERNS) {
+    const m = raw.match(re);
+    if (!m) continue;
+    return out[li].replace(/\{(r?)(\d)\}/g, (_, r, i) => {
+      const v = m[Number(i)] || '';
+      if (!r) return v;
+      const tr = EVENT_REASONS[v.trim().toLowerCase()];
+      return tr ? tr[li] : v;
+    });
+  }
+  return text;
 }
