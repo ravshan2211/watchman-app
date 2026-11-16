@@ -72,7 +72,7 @@ html.app-locked body { position: fixed; inset: 0; width: 100%; background: #ff87
 html.app-locked body:has(#mainView.dark) { background: #000; }
 button { font: inherit; }
 
-.view { min-height: 100vh; }
+.view { min-height: var(--ph); }
 
 /* ---------- Kirish ---------- */
 #loginView {
@@ -138,7 +138,7 @@ button { font: inherit; }
   color: var(--text);
   /* Ekranga to'liq sig'adi: toolbar tepada, .home qolgan joyni egallaydi. */
   height: 100vh;
-  height: 100dvh;
+  height: var(--ph);
   display: flex; flex-direction: column;
   overflow: hidden;
   font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -224,7 +224,7 @@ button { font: inherit; }
 .side .val.alert { color: var(--warn); font-weight: 700; }
 .countdown { font-size: 15px; margin-top: -12px; font-variant-numeric: tabular-nums; }
 /* Rasm (560x650) ekran balandligiga ham sig'adi - bosh ekran hech qachon surilmaydi. */
-.car-wrap { position: relative; width: min(64vw, 330px, calc((100dvh - 60px - var(--safe-t) - var(--safe-b)) * 0.38)); }
+.car-wrap { position: relative; width: min(calc(var(--pw) * 0.64), 330px, calc((var(--ph) - 60px - var(--safe-t) - var(--safe-b)) * 0.38)); }
 .car { display: block; width: 100%; height: auto; }
 .lock-badge {
   position: absolute; left: 50%; top: 27%; width: 31%;
@@ -415,7 +415,7 @@ button { font: inherit; }
 .round .ico-signal, .round .ico-fara, .round .ico-telefon, .round .ico-bakavoy { width: 34px; height: 34px; }
 
 /* ---------- Oynalar: ikonka tanlash, qurilmalar ---------- */
-.modal-card.sheet { max-width: 420px; max-height: 86vh; overflow-y: auto; }
+.modal-card.sheet { max-width: 420px; max-height: calc(var(--ph) * 0.86); overflow-y: auto; }
 .modal-card h3 { margin: 0 0 14px; font-size: 20px; }
 .pick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 8px; }
 .pick-item {
@@ -474,3 +474,16 @@ button { font: inherit; }
 
 /* ENGINE: zavod qilingan / o't oldirilmoqda - ichki doira yashil (o'chirish uchun bosilsa asl rang) */
 .engine.started .engine-in { background: #2e7d32; color: #fff; transition: background 0.3s; }
+
+/* ---------- Tik holatni "qulflash" (iPhone veb-ilovasi manifestdagi orientation ni e'tiborsiz
+   qoldiradi). Telefon yonga burilsa (app.js html[data-rot] qo'yadi) - butun ilova teskari
+   tomonga buriladi va telefonga nisbatan tik qoladi. --pw/--ph - "tik" ekran eni/bo'yi. ---------- */
+:root { --pw: 100vw; --ph: 100vh; --ph: 100dvh; }
+html[data-rot] { --pw: 100vh; --pw: 100dvh; --ph: 100vw; overflow: hidden; background: #ff871f; }
+html[data-rot] body, html.app-locked[data-rot] body {
+  position: fixed; inset: auto; margin: 0;
+  width: var(--pw); height: var(--ph); overflow: hidden;
+  transform-origin: top left;
+}
+html[data-rot="90"] body, html.app-locked[data-rot="90"] body { top: 100vh; top: 100dvh; left: 0; transform: rotate(-90deg); }
+html[data-rot="-90"] body, html.app-locked[data-rot="-90"] body { top: 0; left: 100vw; transform: rotate(90deg); }

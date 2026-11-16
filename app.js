@@ -1096,6 +1096,22 @@ document.addEventListener('contextmenu', (e) => {
 });
 
 // ---------------- Boshlash ----------------
+// Tik holat: telefon yonga burilganda ilova teskari buriladi (styles.css html[data-rot]).
+// Faqat telefonda (kichik ekran) - planshet va kompyuterda burilmaydi.
+function applyRotationLock() {
+  const a = typeof window.orientation === 'number' ? window.orientation
+    : (screen.orientation && typeof screen.orientation.angle === 'number' ? screen.orientation.angle : 0);
+  const phone = Math.min(window.innerWidth, window.innerHeight) < 600;
+  const landscape = window.innerWidth > window.innerHeight;
+  const rot = phone && landscape ? ((a === -90 || a === 270) ? '-90' : '90') : '';
+  if (rot) document.documentElement.dataset.rot = rot;
+  else delete document.documentElement.dataset.rot;
+}
+window.addEventListener('resize', applyRotationLock);
+window.addEventListener('orientationchange', () => setTimeout(applyRotationLock, 60));
+if (screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener('change', applyRotationLock);
+applyRotationLock();
+
 state.creds = loadCreds();
 if (state.creds) {
   enterMain();
