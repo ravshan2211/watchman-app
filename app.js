@@ -1,8 +1,16 @@
 // WATCHMAN veb-ilovasi (iPhone uchun, Android ilova bilan bir xil server protokoli).
-// Server: wss://magiline-server.onrender.com/ws  (sinov uchun: ?server=ws://127.0.0.1:18123/ws)
+// Server: wss://api.watchman.uz/ws, zaxira wss://watchman-fra.onrender.com/ws
+// (sinov uchun: ?server=ws://127.0.0.1:18123/ws)
 'use strict';
 
-const SERVER_URL = new URLSearchParams(location.search).get('server') || 'wss://magiline-server.onrender.com/ws';
+// 2026-11-21: server Frankfurt'ga ko'chdi. Asosiy - o'z domenimiz (hosting almashsa ham ilovani
+// yangilash shart emas), zaxira - Render'dagi to'g'ridan-to'g'ri nom. Ketma-ket 2 marta ulanib
+// bo'lmasa boshqasiga o'tiladi (Android ilovadagi kabi).
+const SERVER_OVERRIDE = new URLSearchParams(location.search).get('server');
+const SERVERS = SERVER_OVERRIDE ? [SERVER_OVERRIDE] : ['wss://api.watchman.uz/ws', 'wss://watchman-fra.onrender.com/ws'];
+const CONNECT_TIMEOUT_MS = 12000;  // shuncha vaqtda kirish tasdiqlanmasa - urinish muvaffaqiyatsiz
+let serverIdx = 0;
+let serverFails = 0;
 const STORE_KEY = 'watchman.creds';
 const DEVICE_ID_KEY = 'watchman.deviceId';
 
@@ -311,8 +319,12 @@ function connect() {
   updateConnPill();
 
   let ws;
-  try { ws = new WebSocket(SERVER_URL); } catch { scheduleReconnect(); return; }
+  try { ws = new WebSocket(SERVERS[serverIdx]); } catch { onConnectFailed(); scheduleReconnect(); return; }
   state.ws = ws;
+  // Ulanish osilib qolsa (DNS/tarmoq) - kutib o'tirmasdan yopamiz, keyingi urinish boshqa manzilga bo'lishi mumkin.
+  const connectTimer = setTimeout(() => {
+    if (state.ws === ws && !state.authed) { try { ws.close(); } catch {} }
+  }, CONNECT_TIMEOUT_MS);
 
   ws.onopen = () => {
     ws.send(JSON.stringify({
@@ -333,13 +345,24 @@ function connect() {
   };
 
   ws.onclose = () => {
+    clearTimeout(connectTimer);
     if (state.ws !== ws) return;  // eski ulanishning kech kelgan hodisasi
+    if (!state.authed && !state.manualClose) onConnectFailed();
     state.ws = null;
     state.authed = false;
     updateConnPill();
     if (!state.manualClose) scheduleReconnect();
   };
   ws.onerror = () => { /* onclose keyin keladi */ };
+}
+
+// Kirish tasdiqlanmay ulanish yopildi: ikki marta ketma-ket bo'lsa - boshqa server manzili.
+function onConnectFailed() {
+  serverFails++;
+  if (serverFails >= 2 && SERVERS.length > 1) {
+    serverIdx = (serverIdx + 1) % SERVERS.length;
+    serverFails = 0;
+  }
 }
 
 function scheduleReconnect() {
@@ -354,6 +377,7 @@ function handleMessage(msg) {
     case 'auth_ok':
       state.authed = true;
       state.reconnectDelay = 0;
+      serverFails = 0;
       // ID ni server kirishda tekshiradi - qurilmaga alohida tasdiq kerak emas.
       send({ type: 'cmd', cmd: 'RequestStatus' });
       updateConnPill();
