@@ -180,7 +180,8 @@ function renderStatus() {
     $('sirenBtn').setAttribute('aria-label', t(s.tSirenOn ? 'sirenIsOn' : 'sirenIsOff'));
     $('sirenBtn').setAttribute('aria-pressed', s.tSirenOn ? 'true' : 'false');
   }
-  setVal('batVal', s.akbQuvvati ? s.akbQuvvati + 'V' : '-', s.akbQuvvati && parseFloat(s.akbQuvvati) < 11.8);
+  setVal('batVal', s.akbQuvvati ? s.akbQuvvati + 'V' : '-', s.akbQuvvati && (parseFloat(s.akbQuvvati) < 11.8 || s.akbHolat === 2));
+  if (!$('page-autoakb').hidden) renderAkbInfo();  // ochiq sahifa jonli yangilanadi
   setVal('accVal', s.accOn === 'ACC_HIGH' ? 'HIGH' : s.accOn === undefined && s.mator === undefined ? '-' : engineOn ? 'ON' : 'OFF');
 
   const cd = $('countdown');
@@ -609,6 +610,7 @@ function openPage(name) {
   if (name === 'autocool') fillClimateForm('cool');
   if (name === 'autoheat') fillClimateForm('heat');
   if (name === 'autoseats') fillSeatsForm();
+  if (name === 'autoakb') fillAkbForm();
   if (name === 'general') renderWifiNow();
 }
 function closePage() {
@@ -775,6 +777,36 @@ $('autoseatsForm').addEventListener('submit', (e) => {
   const msg = { type: 'cmd', cmd: 'SetSeats', seatBtn: $('seatBtn').checked };
   for (let n = 1; n <= 4; n++) msg['seat' + n] = $('seat' + n).checked;
   if (send(msg)) toast(t('saved'));
+  else toast(t('noServer'), true);
+});
+
+// ---------------- Avtozapusk -> AKB (aqlli akkumulyator, buyruq SetBattAuto) ----------------
+function renderAkbInfo() {
+  const s = state.status;
+  if (!$('akbInfo')) return;
+  const supported = typeof s.tAkbAuto === 'boolean';
+  if (!supported) { $('akbInfo').textContent = '-'; return; }
+  const lines = [];
+  const holat = ['akbGood', 'akbMid', 'akbWeak', 'akbCharging'][s.akbHolat];
+  if (holat) lines.push(t('akbState') + ': ' + t(holat));
+  if (s.akbQuvvati) lines.push(t('akbNow') + ': ' + s.akbQuvvati + ' V');
+  if (typeof s.akbZaxira === 'number') lines.push(t('akbReserve') + ': ' + s.akbZaxira + '%');
+  if (typeof s.akbKritik === 'number') lines.push(t('akbCrit') + ': ' + s.akbKritik.toFixed(1) + ' V');
+  if (typeof s.akbStartMin === 'number') lines.push(t('akbLastCrank') + ': ' + s.akbStartMin.toFixed(1) + ' V');
+  lines.push(t('akbLearned') + ': ' + (s.akbStarts || 0) + (s.akbStarts >= 3 ? '' : ' ' + t('akbLearning')));
+  if (s.akbEskir) lines.push(t('akbAging'));
+  $('akbInfo').textContent = lines.join('\n');
+}
+function fillAkbForm() {
+  const s = state.status;
+  const supported = typeof s.tAkbAuto === 'boolean';
+  $('akbAuto').checked = !!s.tAkbAuto;
+  $('akbNoFw').hidden = supported || !state.statusAt;
+  renderAkbInfo();
+}
+$('autoakbForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (send({ type: 'cmd', cmd: 'SetBattAuto', on: $('akbAuto').checked })) toast(t('saved'));
   else toast(t('noServer'), true);
 });
 
