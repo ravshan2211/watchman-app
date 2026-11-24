@@ -155,6 +155,14 @@ function renderStatus() {
   $('fuelCap').hidden = !hasFuel;
   $('fuelVal').hidden = !hasFuel;
   if (hasFuel) setVal('fuelVal', hasLitres ? s.fuelL + ' L' : s.fuelPct + '%', hasLitres ? s.fuelL <= 5 : s.fuelPct <= 10);
+  // Haqiqiy qulf holati - faqat CAN'dan biladigan mashinada (Tracker 2 / Onix, 0x505).
+  const hasLock = typeof s.doorLocked === 'boolean';
+  $('lockCap').hidden = !hasLock;
+  $('lockVal').hidden = !hasLock;
+  if (hasLock) {
+    $('lockCap').textContent = t('lockCap');
+    setVal('lockVal', t(s.doorLocked ? 'lockClosed' : 'lockOpen'), !s.doorLocked);
+  }
   const hasMetan = typeof s.metanPct === 'number';
   $('metanCap').hidden = !hasMetan;
   $('metanVal').hidden = !hasMetan;

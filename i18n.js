@@ -79,6 +79,9 @@ const I18N = {
   countTo: ['{0}°C', '{0}°C', '{0}°C'],
   sirenIsOn: ['Sirena yoqiq', 'Сирена включена', 'Siren on'],
   sirenIsOff: ["Sirena o'chiq", 'Сирена выключена', 'Siren off'],
+  lockCap: ['QULF', 'ЗАМОК', 'LOCK'],
+  lockClosed: ['YOPIQ', 'ЗАКРЫТ', 'CLOSED'],
+  lockOpen: ['OCHIQ', 'ОТКРЫТ', 'OPEN'],
   sirenTurnedOn: ['Sirena yoqildi', 'Сирена включена', 'Siren turned on'],
   sirenTurnedOff: ["Sirena o'chirildi - ovoz chiqmaydi", 'Сирена выключена — звука не будет', 'Siren turned off - no sound'],
 
@@ -244,6 +247,8 @@ const EVENT_EXACT = {
   "egasi qaytdi - zavod relelari o'chirildi": ['Владелец вернулся — реле запуска отключены', 'Owner returned - start relays turned off'],
   "internet yo'qolgan edi - modem qayta yoqildi, aloqa tiklandi": ['Интернет пропадал — модем перезапущен, связь восстановлена', 'Internet was lost - modem restarted, connection restored'],
   "mashina kalit bilan ochildi - qo'riqlash o'chirildi": ['Машина открыта ключом — охрана отключена', 'Car unlocked with the key - alarm disarmed'],
+  "mashina qulflanmadi (eshik yoki bagaj ochiq bo'lishi mumkin)": ['Машина не закрылась (возможно, открыта дверь или багажник)', 'Car did not lock (a door or the trunk may be open)'],
+  'mashina ochilmadi': ['Машина не открылась', 'Car did not unlock'],
   "wifi tarmog'i muvaffaqiyatli o'zgartirildi": ['Сеть WiFi успешно изменена', 'WiFi network changed successfully'],
   "gaz datchigidan signal kelmadi - bu mashinada gaz yo'q deb hisoblandi": ['Нет сигнала от датчика газа — считается, что газа в этой машине нет', 'No signal from the gas sensor - this car is treated as having no gas'],
   'watchman: ogohlantirish': ['WATCHMAN: тревога', 'WATCHMAN: alert'],
