@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="styles.css?v=35">
+<link rel="stylesheet" href="styles.css?v=36">
 </head>
 <body>
 
@@ -253,15 +253,22 @@
     </form>
   </section>
 
-  <!-- Avtozapusk -> AKB: aqlli akkumulyator + avtozaryad (buyruq SetBattAuto) -->
+  <!-- Avtozapusk -> AKB: avtomatik zaryadlash (buyruq SetBattAuto {on,v,sec,min}) -->
   <section id="page-autoakb" class="page" hidden>
     <header class="toolbar"><button class="tb-btn back" data-back aria-label="Orqaga" data-i18n-aria="back">‹</button><div class="tb-title plain" data-i18n="secAkb">AKB</div></header>
     <form id="autoakbForm" class="page-body" novalidate>
-      <div id="akbInfo" class="info-box">-</div>
       <label class="switch-row"><span data-i18n="akbAutoCharge">Avtomatik zaryadlash</span><input id="akbAuto" type="checkbox" role="switch"><i></i></label>
-      <p class="sec-hint" data-i18n="akbAutoHint">Mashina qo'riqlashda turganda AKB chegaraga yaqinlashsa, dvigatel 15 daqiqaga o't oldiriladi (3 soatda 1 marta, sutkada ko'pi bilan 3 marta).</p>
-      <p id="akbNoFw" class="sec-hint" hidden data-i18n="noFw">Mashinadagi dastur hali bu funksiyani qo'llamaydi - u yangilangach ishlaydi.</p>
-      <button class="wide-btn" type="submit" data-i18n="save">Saqlash</button>
+      <div class="form-page">
+        <label for="akbV" data-i18n="akbVLabel">Kuchlanish (V, 10.0 - 13.0)</label>
+        <input id="akbV" inputmode="decimal" autocomplete="off">
+        <label for="akbSec" data-i18n="akbSecLabel">Necha soniyadan keyin (5 - 3600)</label>
+        <input id="akbSec" inputmode="numeric" autocomplete="off">
+        <label for="akbMin" data-i18n="akbMinLabel">Necha daqiqa ishlaydi (1 - 60)</label>
+        <input id="akbMin" inputmode="numeric" autocomplete="off">
+        <p id="akbNoFw" class="sec-hint" hidden data-i18n="noFw">Mashinadagi dastur hali bu funksiyani qo'llamaydi - u yangilangach ishlaydi.</p>
+        <p id="akbError" class="form-error" role="alert" hidden></p>
+        <button class="wide-btn" type="submit" data-i18n="save">Saqlash</button>
+      </div>
     </form>
   </section>
 
@@ -364,7 +371,7 @@
   </div>
 </div>
 
-<script src="i18n.js?v=35"></script>
-<script src="app.js?v=35"></script>
+<script src="i18n.js?v=36"></script>
+<script src="app.js?v=36"></script>
 </body>
 </html>

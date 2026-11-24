@@ -180,8 +180,7 @@ function renderStatus() {
     $('sirenBtn').setAttribute('aria-label', t(s.tSirenOn ? 'sirenIsOn' : 'sirenIsOff'));
     $('sirenBtn').setAttribute('aria-pressed', s.tSirenOn ? 'true' : 'false');
   }
-  setVal('batVal', s.akbQuvvati ? s.akbQuvvati + 'V' : '-', s.akbQuvvati && (parseFloat(s.akbQuvvati) < 11.8 || s.akbHolat === 2));
-  if (!$('page-autoakb').hidden) renderAkbInfo();  // ochiq sahifa jonli yangilanadi
+  setVal('batVal', s.akbQuvvati ? s.akbQuvvati + 'V' : '-', s.akbQuvvati && (parseFloat(s.akbQuvvati) < 11.8));
   setVal('accVal', s.accOn === 'ACC_HIGH' ? 'HIGH' : s.accOn === undefined && s.mator === undefined ? '-' : engineOn ? 'ON' : 'OFF');
 
   const cd = $('countdown');
@@ -780,33 +779,28 @@ $('autoseatsForm').addEventListener('submit', (e) => {
   else toast(t('noServer'), true);
 });
 
-// ---------------- Avtozapusk -> AKB (aqlli akkumulyator, buyruq SetBattAuto) ----------------
-function renderAkbInfo() {
-  const s = state.status;
-  if (!$('akbInfo')) return;
-  const supported = typeof s.tAkbAuto === 'boolean';
-  if (!supported) { $('akbInfo').textContent = '-'; return; }
-  const lines = [];
-  const holat = ['akbGood', 'akbMid', 'akbWeak', 'akbCharging'][s.akbHolat];
-  if (holat) lines.push(t('akbState') + ': ' + t(holat));
-  if (s.akbQuvvati) lines.push(t('akbNow') + ': ' + s.akbQuvvati + ' V');
-  if (typeof s.akbZaxira === 'number') lines.push(t('akbReserve') + ': ' + s.akbZaxira + '%');
-  if (typeof s.akbKritik === 'number') lines.push(t('akbCrit') + ': ' + s.akbKritik.toFixed(1) + ' V');
-  if (typeof s.akbStartMin === 'number') lines.push(t('akbLastCrank') + ': ' + s.akbStartMin.toFixed(1) + ' V');
-  lines.push(t('akbLearned') + ': ' + (s.akbStarts || 0) + (s.akbStarts >= 3 ? '' : ' ' + t('akbLearning')));
-  if (s.akbEskir) lines.push(t('akbAging'));
-  $('akbInfo').textContent = lines.join('\n');
-}
+// ---------------- Avtozapusk -> AKB (avtomatik zaryadlash, buyruq SetBattAuto) ----------------
 function fillAkbForm() {
   const s = state.status;
   const supported = typeof s.tAkbAuto === 'boolean';
   $('akbAuto').checked = !!s.tAkbAuto;
-  $('akbNoFw').hidden = supported || !state.statusAt;
-  renderAkbInfo();
+  $('akbV').value = typeof s.tAkbV === 'number' ? s.tAkbV.toFixed(1) : '11.8';
+  $('akbSec').value = typeof s.tAkbSec === 'number' ? String(s.tAkbSec) : '60';
+  $('akbMin').value = typeof s.tAkbMin === 'number' ? String(s.tAkbMin) : '10';
+  $('akbNoFw').hidden = (supported && typeof s.tAkbMin === 'number') || !state.statusAt;
+  $('akbError').hidden = true;
 }
 $('autoakbForm').addEventListener('submit', (e) => {
   e.preventDefault();
-  if (send({ type: 'cmd', cmd: 'SetBattAuto', on: $('akbAuto').checked })) toast(t('saved'));
+  const err = (m) => { $('akbError').textContent = m; $('akbError').hidden = false; };
+  const v = parseFloat($('akbV').value.replace(',', '.'));
+  const sec = Number($('akbSec').value.trim());
+  const min = Number($('akbMin').value.trim());
+  if (!(v >= 10 && v <= 13)) { err(t('akbVErr')); return; }
+  if (!Number.isInteger(sec) || sec < 5 || sec > 3600) { err(t('akbSecErr')); return; }
+  if (!Number.isInteger(min) || min < 1 || min > 60) { err(t('akbMinErr')); return; }
+  $('akbError').hidden = true;
+  if (send({ type: 'cmd', cmd: 'SetBattAuto', on: $('akbAuto').checked, v: Math.round(v * 10) / 10, sec, min })) toast(t('saved'));
   else toast(t('noServer'), true);
 });
 
