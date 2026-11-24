@@ -388,6 +388,8 @@ function handleMessage(msg) {
       serverFails = 0;
       // ID ni server kirishda tekshiradi - qurilmaga alohida tasdiq kerak emas.
       send({ type: 'cmd', cmd: 'RequestStatus' });
+      // Ilova ochiq - qo'riqlash ogohlantirishining takroriy push'lari to'xtasin.
+      if (document.visibilityState === 'visible') send({ type: 'alert_seen' });
       updateConnPill();
       break;
     case 'auth_error': {
@@ -430,7 +432,7 @@ function handleMessage(msg) {
         state.alerts.unshift({ type: msg.type, reason: msg.reason, ts: Date.now() });
         state.alerts = state.alerts.slice(0, 20);
         renderAlerts();
-        if (msg.type === 'alert' && document.visibilityState === 'visible') startRing(trEvent(msg.reason));
+        if (msg.type === 'alert' && document.visibilityState === 'visible') { startRing(trEvent(msg.reason)); send({ type: 'alert_seen' }); }
         else toast(trEvent(msg.reason), msg.type === 'alert');
       }
       break;
