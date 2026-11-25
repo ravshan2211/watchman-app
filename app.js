@@ -312,7 +312,8 @@ function renderHistory(events) {
 // xabari" deb rad etadi va ilova hisobdan chiqib ketadi.
 function send(obj) {
   if (state.authed && state.ws && state.ws.readyState === WebSocket.OPEN) {
-    state.ws.send(JSON.stringify(obj));
+    // at - telefon vaqti: server telefon tomonda ushlanib qolib, kechikib yetgan buyruqni tashlab yuboradi.
+    state.ws.send(JSON.stringify({ ...obj, at: Date.now() }));
     return true;
   }
   return false;
@@ -435,6 +436,12 @@ function handleMessage(msg) {
         if (msg.type === 'alert' && document.visibilityState === 'visible') { startRing(trEvent(msg.reason)); send({ type: 'alert_seen' }); }
         else toast(trEvent(msg.reason), msg.type === 'alert');
       }
+      break;
+    case 'cmd_noreply':
+      toast(t('cmdNoReply'), true);
+      break;
+    case 'cmd_stale':
+      toast(t('cmdStale'), true);
       break;
     case 'history':
       renderHistory(msg.events);

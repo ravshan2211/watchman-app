@@ -22,6 +22,8 @@ const I18N = {
   save: ['Saqlash', 'Сохранить', 'Save'],
   saved: ['Saqlandi', 'Сохранено', 'Saved'],
   noServer: ["Server bilan aloqa yo'q", 'Нет связи с сервером', 'No connection to the server'],
+  cmdNoReply: ["Mashina bilan aloqa sekin - buyruq bekor qilindi. Qayta ulanguncha kuting, keyin bir marta bosing", 'Связь с машиной медленная - команда отменена. Дождитесь переподключения и нажмите один раз', 'Car connection is slow - command cancelled. Wait for reconnect, then press once'],
+  cmdStale: ["Buyruq kechikib yetdi - bajarilmadi. Qayta bosing", 'Команда пришла с опозданием - не выполнена. Нажмите снова', 'Command arrived late - not executed. Press again'],
   refresh: ['Yangilash', 'Обновить', 'Refresh'],
   loading: ['Yuklanmoqda…', 'Загрузка…', 'Loading…'],
   close: ['Yopish', 'Закрыть', 'Close'],
