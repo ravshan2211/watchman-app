@@ -257,6 +257,7 @@ const EVENT_EXACT = {
   "egasi qaytdi - zavod relelari o'chirildi": ['Владелец вернулся — реле запуска отключены', 'Owner returned - start relays turned off'],
   "internet yo'qolgan edi - modem qayta yoqildi, aloqa tiklandi": ['Интернет пропадал — модем перезапущен, связь восстановлена', 'Internet was lost - modem restarted, connection restored'],
   "mashina kalit bilan ochildi - qo'riqlash o'chirildi": ['Машина открыта ключом — охрана отключена', 'Car unlocked with the key - alarm disarmed'],
+  "mashina pult bilan ochildi - qo'riqlash o'chirildi": ['Машина открыта брелоком — охрана отключена', 'Car unlocked with the remote - alarm disarmed'],
   "mashina qulflanmadi (eshik yoki bagaj ochiq bo'lishi mumkin)": ['Машина не закрылась (возможно, открыта дверь или багажник)', 'Car did not lock (a door or the trunk may be open)'],
   'mashina ochilmadi': ['Машина не открылась', 'Car did not unlock'],
   "wifi tarmog'i muvaffaqiyatli o'zgartirildi": ['Сеть WiFi успешно изменена', 'WiFi network changed successfully'],
